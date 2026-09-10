@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="/Image/Café 14 - logo.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/estilos.css">
+    <title>Crear cuenta — Café Catorce</title>
+</head>
+<body>
+    <div class="acceso">
+        <aside class="acceso__lado">
+            <a href="/"><img src="/Image/Café 14 - Imagotipo.svg" alt="Café Catorce"></a>
+            <div>
+                <h2>Únete a la vecindad de Catorce.</h2>
+                <p>Con tu cuenta recibes promociones y descuentos directo en tu correo.</p>
+                <ul class="acceso__lista">
+                    <li><i class="fa-solid fa-gift"></i> Bienvenida con 10% en tu primer pedido</li>
+                    <li><i class="fa-solid fa-star"></i> Acumula puntos por cada compra</li>
+                </ul>
+            </div>
+            <p class="acceso__pie">&copy; 2026 Café Catorce</p>
+        </aside>
+
+        <main class="acceso__main">
+            <div class="acceso__card">
+                <h1>Crear cuenta</h1>
+                <p class="acceso__sub">Solo necesitamos tu nombre y tu correo.</p>
+                <form id="form-registro">
+                    <div class="acceso__campo">
+                        <label for="nombre">Nombre completo</label>
+                        <input type="text" id="nombre" placeholder="Ej. Ana Torres" required>
+                    </div>
+                    <div class="acceso__campo">
+                        <label for="correo">Correo electrónico</label>
+                        <input type="email" id="correo" placeholder="tucorreo@ejemplo.com" required>
+                    </div>
+                    <div class="acceso__campo">
+                        <label for="clave">Contraseña</label>
+                        <input type="password" id="clave" placeholder="••••••••" required>
+                    </div>
+                    <button type="submit" class="btn btn--solido btn--lg btn--full">Crear mi cuenta</button>
+                </form>
+                <div class="acceso__sep">o</div>
+                <a href="/" class="acceso__invitado"><i class="fa-regular fa-user"></i> Continuar como invitado</a>
+                <p class="acceso__foot">¿Ya tienes cuenta? <a href="/login.html">Inicia sesión</a></p>
+                <p class="acceso__nota"><i class="fa-solid fa-circle-info"></i> Pantalla de maqueta del primer avance. El registro real de clientes se conecta a la API más adelante.</p>
+            </div>
+        </main>
+    </div>
+    <script>
+      document.getElementById("form-registro").addEventListener("submit", (e) => {
+        e.preventDefault();
+        window.location.href = "/";
+      });
+    </script>
+</body>
+</html>
