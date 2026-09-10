@@ -6,6 +6,13 @@ Backend con **Spring Boot**.
 Todo vive en **un solo proyecto**: Spring Boot expone la API REST **y** sirve el frontend
 (vista del cliente + panel de administrador) desde el mismo servidor y el mismo puerto.
 
+## Clonar el repositorio
+
+```bash
+git clone https://github.com/pisfilromero223-hue/Cafeteria--Integrador-Web.git
+cd Cafeteria--Integrador-Web
+```
+
 ## Cómo ejecutar (un solo comando)
 
 Requiere **JDK 21**. Si tu `java` por defecto es otra versión, define `JAVA_HOME` al JDK 21:
