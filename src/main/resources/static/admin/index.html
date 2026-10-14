@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/admin.css">
     <title>Panel Admin - Café Catorce</title>
 </head>
-<body>
+<body data-admin="true">
     <div class="login-wrap">
         <div class="login-card">
             <div class="marca">
@@ -20,31 +20,22 @@
 
             <form id="form-admin-login">
                 <div class="campo">
-                    <label for="usuario">Usuario</label>
-                    <input type="text" id="usuario" value="admin" required>
+                    <label for="correo">Correo</label>
+                    <input type="email" id="correo" placeholder="admin@cafecatorce.local" required>
                 </div>
                 <div class="campo">
                     <label for="clave">Contraseña</label>
                     <input type="password" id="clave" placeholder="••••••••" required>
                 </div>
                 <button type="submit" class="btn-primario">Entrar al panel</button>
-            </form>
+            <p id="acceso-error" role="alert" hidden style="color:#e5544b;margin-top:1rem"></p></form>
 
-            <p class="login-nota">
-                <i class="fa-solid fa-circle-info"></i>
-                Maqueta del primer avance: cualquier dato entra al panel.
-                La autenticación real (Spring Security + JWT + roles) llega en un avance posterior.
-            </p>
+
         </div>
     </div>
 
     <script src="../comun/config.js"></script>
-    <script>
-      document.getElementById("form-admin-login").addEventListener("submit", (e) => {
-        e.preventDefault();
-        sessionStorage.setItem("cafe14-admin", "1");
-        window.location.href = "panel.html";
-      });
-    </script>
+    <script src="/comun/auth.js"></script>
+    <script src="/comun/acceso.js"></script>
 </body>
 </html>

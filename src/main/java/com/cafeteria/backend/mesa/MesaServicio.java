@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class MesaServicio {
     private final MesaRepositorio repositorio;
 

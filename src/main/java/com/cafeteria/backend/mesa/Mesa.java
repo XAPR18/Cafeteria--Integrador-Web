@@ -1,11 +1,21 @@
 package com.cafeteria.backend.mesa;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "mesas")
 public class Mesa {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, unique = true)
     private Integer numero;
     private Integer capacidad;
+    @Enumerated(EnumType.STRING)
     private TipoMesa tipo;
+    @Enumerated(EnumType.STRING)
     private ZonaMesa zona;
+    @Enumerated(EnumType.STRING)
     private EstadoMesa estado;
 
     public Mesa() {

@@ -1,13 +1,52 @@
 {
   "info": {
-    "name": "Cafe Catorce - API (Primer Avance)",
+    "name": "Café Catorce - Avance 4.3",
     "description": "CRUD de Secciones, Productos y Mesas. Backend Spring Boot, datos en memoria (sin base de datos). Base URL en la variable {{baseUrl}}.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:8080" }
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    }
   ],
   "item": [
+    {
+      "name": "Autenticación",
+      "item": [
+        {
+          "name": "Login administrador local",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/login",
+            "body": {
+              "mode": "raw",
+              "raw": "{\"email\": \"admin@cafecatorce.local\", \"clave\": \"Cafe14.Local!2026\"}"
+            }
+          }
+        },
+        {
+          "name": "Mi perfil",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/me"
+          }
+        },
+        {
+          "name": "Cerrar sesión",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/logout"
+          }
+        }
+      ]
+    },
     {
       "name": "Secciones",
       "item": [
@@ -15,45 +54,103 @@
           "name": "Listar secciones",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/secciones", "host": ["{{baseUrl}}"], "path": ["api", "secciones"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/secciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "secciones"
+              ]
+            }
           }
         },
         {
           "name": "Obtener seccion por id",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/secciones/1", "host": ["{{baseUrl}}"], "path": ["api", "secciones", "1"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/secciones/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "secciones",
+                "1"
+              ]
+            }
           }
         },
         {
           "name": "Crear seccion",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Bebidas Frias\",\n  \"slug\": \"bebidas-frias\",\n  \"descripcion\": \"Jugos, limonadas y frappes.\",\n  \"activa\": true\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/secciones", "host": ["{{baseUrl}}"], "path": ["api", "secciones"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/secciones",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "secciones"
+              ]
+            }
           }
         },
         {
           "name": "Actualizar seccion",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Cafes de la Casa\",\n  \"slug\": \"cafes\",\n  \"descripcion\": \"Nuestros granos de especialidad.\",\n  \"activa\": true\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/secciones/1", "host": ["{{baseUrl}}"], "path": ["api", "secciones", "1"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/secciones/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "secciones",
+                "1"
+              ]
+            }
           }
         },
         {
           "name": "Eliminar seccion",
           "request": {
             "method": "DELETE",
-            "url": { "raw": "{{baseUrl}}/api/secciones/5", "host": ["{{baseUrl}}"], "path": ["api", "secciones", "5"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/secciones/5",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "secciones",
+                "5"
+              ]
+            }
           }
         }
       ]
@@ -65,7 +162,16 @@
           "name": "Listar productos",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/productos", "host": ["{{baseUrl}}"], "path": ["api", "productos"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            }
           }
         },
         {
@@ -74,9 +180,19 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/api/productos?seccionId=1",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "productos"],
-              "query": [{ "key": "seccionId", "value": "1" }]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ],
+              "query": [
+                {
+                  "key": "seccionId",
+                  "value": "1"
+                }
+              ]
             }
           }
         },
@@ -84,47 +200,113 @@
           "name": "Obtener producto por id",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/productos/1", "host": ["{{baseUrl}}"], "path": ["api", "productos", "1"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1"
+              ]
+            }
           }
         },
         {
           "name": "Crear producto",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Flat White\",\n  \"descripcion\": \"Doble ristretto con leche microtexturizada.\",\n  \"precio\": 8.5,\n  \"seccionId\": 1,\n  \"disponible\": true,\n  \"imagenUrl\": \"Image/Producto 1.jpg\",\n  \"etiqueta\": \"NUEVO\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/productos", "host": ["{{baseUrl}}"], "path": ["api", "productos"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            }
           }
         },
         {
           "name": "Actualizar producto",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"nombre\": \"Flat White\",\n  \"descripcion\": \"Doble ristretto con leche microtexturizada.\",\n  \"precio\": 9.0,\n  \"seccionId\": 1,\n  \"disponible\": true,\n  \"etiqueta\": \"NUEVO\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/productos/1", "host": ["{{baseUrl}}"], "path": ["api", "productos", "1"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "1"
+              ]
+            }
           }
         },
         {
           "name": "Eliminar producto",
           "request": {
             "method": "DELETE",
-            "url": { "raw": "{{baseUrl}}/api/productos/18", "host": ["{{baseUrl}}"], "path": ["api", "productos", "18"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/productos/18",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos",
+                "18"
+              ]
+            }
           }
         },
         {
           "name": "Crear producto - datos invalidos (400)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"nombre\": \"\",\n  \"precio\": -3\n}" },
-            "url": { "raw": "{{baseUrl}}/api/productos", "host": ["{{baseUrl}}"], "path": ["api", "productos"] }
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"\",\n  \"precio\": -3\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/productos",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "productos"
+              ]
+            }
           }
         }
       ]
@@ -136,48 +318,121 @@
           "name": "Listar mesas",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/mesas", "host": ["{{baseUrl}}"], "path": ["api", "mesas"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas"
+              ]
+            }
           }
         },
         {
           "name": "Obtener mesa por id",
           "request": {
             "method": "GET",
-            "url": { "raw": "{{baseUrl}}/api/mesas/1", "host": ["{{baseUrl}}"], "path": ["api", "mesas", "1"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas",
+                "1"
+              ]
+            }
           }
         },
         {
           "name": "Crear mesa",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"numero\": 11,\n  \"capacidad\": 4,\n  \"tipo\": \"CUATRO\",\n  \"zona\": \"VEREDA\",\n  \"estado\": \"DISPONIBLE\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/mesas", "host": ["{{baseUrl}}"], "path": ["api", "mesas"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas"
+              ]
+            }
           }
         },
         {
           "name": "Actualizar mesa (cambiar estado)",
           "request": {
             "method": "PUT",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"numero\": 1,\n  \"capacidad\": 2,\n  \"tipo\": \"DOS\",\n  \"zona\": \"VEREDA\",\n  \"estado\": \"OCUPADA\"\n}"
             },
-            "url": { "raw": "{{baseUrl}}/api/mesas/1", "host": ["{{baseUrl}}"], "path": ["api", "mesas", "1"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas",
+                "1"
+              ]
+            }
           }
         },
         {
           "name": "Eliminar mesa",
           "request": {
             "method": "DELETE",
-            "url": { "raw": "{{baseUrl}}/api/mesas/11", "host": ["{{baseUrl}}"], "path": ["api", "mesas", "11"] }
+            "url": {
+              "raw": "{{baseUrl}}/api/mesas/11",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "mesas",
+                "11"
+              ]
+            }
           }
         }
       ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "if (![\"GET\", \"HEAD\"].includes(pm.request.method)) {",
+          "  pm.sendRequest(pm.variables.get(\"baseUrl\") + \"/api/auth/csrf\", (err, res) => {",
+          "    if (!err && res.code === 200) pm.request.headers.upsert({key:\"X-XSRF-TOKEN\",value:res.json().token});",
+          "  });",
+          "}"
+        ]
+      }
     }
   ]
 }

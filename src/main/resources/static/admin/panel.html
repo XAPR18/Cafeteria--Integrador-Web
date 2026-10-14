@@ -16,13 +16,14 @@
                 <span><b>CAFÉ CATORCE</b><span>Administración</span></span>
             </div>
             <nav id="nav">
-                <a class="nav-item" data-vista="secciones"><i class="fa-solid fa-layer-group"></i> Secciones</a>
-                <a class="nav-item" data-vista="productos"><i class="fa-solid fa-mug-saucer"></i> Productos</a>
-                <a class="nav-item" data-vista="mesas"><i class="fa-solid fa-chair"></i> Mesas</a>
+                <a href="#" class="nav-item" data-vista="secciones"><i class="fa-solid fa-layer-group"></i> Secciones</a>
+                <a href="#" class="nav-item" data-vista="productos"><i class="fa-solid fa-mug-saucer"></i> Productos</a>
+                <a href="#" class="nav-item" data-vista="mesas"><i class="fa-solid fa-chair"></i> Mesas</a>
+                <a href="#" class="nav-item" data-vista="cuentas"><i class="fa-solid fa-user-shield"></i> Cuentas y permisos</a>
             </nav>
             <div class="pie">
                 <a class="salir" href="index.html"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión</a>
-                <p style="margin-top:.8rem">v1 · Primer avance</p>
+                <p style="margin-top:.8rem">Café Catorce · Gestión del local</p>
             </div>
         </aside>
 
@@ -32,13 +33,14 @@
                     <h1 id="titulo-vista">Secciones</h1>
                     <p id="sub-vista">Categorías del menú de la cafetería.</p>
                 </div>
-                <button class="btn-nuevo" id="btn-nuevo"><i class="fa-solid fa-plus"></i> <span id="btn-nuevo-txt">Nueva sección</span></button>
+                <button class="btn-nuevo" id="btn-nuevo" disabled><i class="fa-solid fa-plus"></i> <span id="btn-nuevo-txt">Nueva sección</span></button>
             </div>
 
             <div class="kpis" id="kpis"></div>
 
-            <div class="error-barra" id="error-barra" hidden></div>
+            <div class="error-barra" id="error-barra" role="alert" hidden></div>
 
+            <div class="tabla-herramientas"><input type="search" class="busqueda" id="busqueda" aria-label="Buscar registros" placeholder="Buscar en esta sección…"><span id="resumen-tabla" class="resumen-tabla" aria-live="polite"></span></div>
             <div class="tabla-caja">
                 <table>
                     <thead><tr id="thead-fila"></tr></thead>
@@ -52,13 +54,14 @@
 
     <!-- Modal de formulario -->
     <div class="modal-fondo" id="modal-fondo" hidden>
-        <div class="modal">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
             <header>
                 <h3 id="modal-titulo">Nuevo</h3>
                 <button type="button" id="modal-cerrar" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
             </header>
             <form id="modal-form">
                 <div class="cuerpo" id="modal-campos"></div>
+                <div class="error-barra" id="modal-error" role="alert" hidden style="margin:0 1.4rem 1rem"></div>
                 <footer>
                     <button type="button" class="btn-sec" id="modal-cancelar">Cancelar</button>
                     <button type="submit" class="btn-primario" style="width:auto;padding:.7rem 1.4rem" id="modal-guardar">Guardar</button>
@@ -68,6 +71,7 @@
     </div>
 
     <script src="../comun/config.js"></script>
+    <script src="/comun/auth.js"></script>
     <script src="js/api.js"></script>
     <script src="js/panel.js"></script>
 </body>

@@ -10,11 +10,17 @@ import org.springframework.context.annotation.Configuration;
 public class ConfiguracionOpenApi {
     @Bean
     public OpenAPI apiCafeteria() {
-        return new OpenAPI().info(new Info()
+        return new OpenAPI()
+                .components(new io.swagger.v3.oas.models.Components()
+                    .addSecuritySchemes("csrf", new io.swagger.v3.oas.models.security.SecurityScheme()
+                        .type(io.swagger.v3.oas.models.security.SecurityScheme.Type.APIKEY)
+                        .in(io.swagger.v3.oas.models.security.SecurityScheme.In.HEADER).name("X-XSRF-TOKEN")))
+                .addSecurityItem(new io.swagger.v3.oas.models.security.SecurityRequirement().addList("csrf"))
+                .info(new Info()
                 .title("API - Cafe Catorce")
                 .description("Sistema web de gestion integral para una cafeteria. "
-                        + "Primer avance: CRUD de Secciones, Productos y Mesas (datos en memoria, sin base de datos).")
-                .version("v1 - Primer avance")
+                        + "Avance hasta 4.3: CRUD persistente, cuentas, JWT y roles.")
+                .version("v2 - Backend y seguridad")
                 .contact(new Contact().name("Equipo Cafe Catorce")));
     }
 }

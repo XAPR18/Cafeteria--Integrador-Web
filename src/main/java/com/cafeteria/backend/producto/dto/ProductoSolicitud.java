@@ -1,6 +1,7 @@
 package com.cafeteria.backend.producto.dto;
 
 import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -18,6 +19,7 @@ public record ProductoSolicitud(
 
         @NotNull(message = "El precio es obligatorio")
         @Positive(message = "El precio debe ser mayor que 0")
+        @Digits(integer = 4, fraction = 2, message = "El precio admite hasta dos decimales")
         @DecimalMax(value = "9999.99", message = "El precio es demasiado alto")
         BigDecimal precio,
 

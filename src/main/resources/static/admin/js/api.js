@@ -1,6 +1,6 @@
 window.API = (function () {
   "use strict";
-  const BASE = (window.CAFE14_API || "http://localhost:8080") + "/api";
+  const BASE = (window.CAFE14_API || window.location.origin) + "/api";
 
   async function pedir(metodo, ruta, cuerpo) {
     const opciones = { method: metodo, headers: {} };
@@ -9,29 +9,7 @@ window.API = (function () {
       opciones.body = JSON.stringify(cuerpo);
     }
 
-    let res;
-    try {
-      res = await fetch(BASE + ruta, opciones);
-    } catch (e) {
-      throw new Error("No hay conexión con el backend (" + BASE + "). ¿Está encendido?");
-    }
-
-    if (res.status === 204) return null;
-
-    let datos = null;
-    const texto = await res.text();
-    if (texto) {
-      try { datos = JSON.parse(texto); } catch { datos = texto; }
-    }
-
-    if (!res.ok) {
-      const msg =
-        (datos && (datos.mensaje || datos.message)) ||
-        "Error " + res.status;
-      const detalles = datos && datos.detalles ? "\n- " + datos.detalles.join("\n- ") : "";
-      throw new Error(msg + detalles);
-    }
-    return datos;
+    return CafeAuth.pedir(BASE + ruta, opciones);
   }
 
   const recurso = (nombre) => ({
@@ -47,5 +25,10 @@ window.API = (function () {
     secciones: recurso("secciones"),
     productos: recurso("productos"),
     mesas: recurso("mesas"),
+    cuentas: {
+      listar: () => pedir("GET", "/cuentas"),
+      crear: datos => pedir("POST", "/cuentas", datos),
+      actualizar: (id, datos) => pedir("PATCH", "/cuentas/" + id + "/estado", datos)
+    },
   };
 })();

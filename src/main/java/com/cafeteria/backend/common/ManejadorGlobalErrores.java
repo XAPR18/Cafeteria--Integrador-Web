@@ -69,8 +69,21 @@ public class ManejadorGlobalErrores {
         log.error("Error inesperado en {}", req.getRequestURI(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(RespuestaError.de(
                 500, "Internal Server Error",
-                "Ocurrio un error inesperado en el servidor. Revisa la consola del backend.",
+                "No se pudo completar la operación. Inténtalo nuevamente o contacta al administrador.",
                 req.getRequestURI()));
+    }
+
+    @ExceptionHandler(org.springframework.web.server.ResponseStatusException.class)
+    public ResponseEntity<RespuestaError> estadoHttp(org.springframework.web.server.ResponseStatusException ex, HttpServletRequest req) {
+        return ResponseEntity.status(ex.getStatusCode()).body(RespuestaError.de(ex.getStatusCode().value(), "Solicitud rechazada", ex.getReason(), req.getRequestURI()));
+    }
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<RespuestaError> integridad(org.springframework.dao.DataIntegrityViolationException ex, HttpServletRequest req) {
+        return ResponseEntity.status(409).body(RespuestaError.de(409, "Conflict", "El registro esta duplicado o tiene datos relacionados", req.getRequestURI()));
+    }
+    @ExceptionHandler(org.springframework.web.HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<RespuestaError> metodo(org.springframework.web.HttpRequestMethodNotSupportedException ex, HttpServletRequest req) {
+        return ResponseEntity.status(405).body(RespuestaError.de(405, "Method Not Allowed", "Metodo HTTP no permitido", req.getRequestURI()));
     }
 
     private String describirCampo(FieldError error) {

@@ -24,6 +24,8 @@
     const menu = document.getElementById("navMenu");
     toggle.addEventListener("click", () => {
       const abierto = menu.classList.toggle("abierto");
+      toggle.setAttribute("aria-expanded", String(abierto));
+      toggle.setAttribute("aria-label", abierto ? "Cerrar menú" : "Abrir menú");
       toggle.innerHTML = abierto
         ? '<i class="fa-solid fa-xmark"></i>'
         : '<i class="fa-solid fa-bars"></i>';
@@ -31,6 +33,8 @@
     menu.addEventListener("click", (e) => {
       if (e.target.closest("a")) {
         menu.classList.remove("abierto");
+        toggle.setAttribute("aria-expanded", "false");
+        toggle.setAttribute("aria-label", "Abrir menú");
         toggle.innerHTML = '<i class="fa-solid fa-bars"></i>';
       }
     });
@@ -80,7 +84,7 @@
       }
       function arrancar() {
         clearInterval(timer);
-        timer = setInterval(() => ir(i + 1), 5500);
+        if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) timer = setInterval(() => ir(i + 1), 5500);
       }
 
       prev.addEventListener("click", () => ir(i - 1, true));
@@ -113,63 +117,5 @@
     }, { passive: true });
     arriba.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 
-    /* ---------- Micro-interacciones en tarjetas (delegado) ---------- */
-    document.addEventListener("click", (e) => {
-      const fav = e.target.closest(".carta__fav");
-      if (fav) {
-        const ic = fav.querySelector("i");
-        ic.classList.toggle("fa-regular");
-        ic.classList.toggle("fa-solid");
-        fav.style.transform = "scale(1.25)";
-        setTimeout(() => (fav.style.transform = ""), 200);
-        return;
-      }
-      const add = e.target.closest(".carta__add");
-      if (add) {
-        if (add.dataset.busy) return;
-        add.dataset.busy = "1";
-        const orig = add.innerHTML;
-        add.innerHTML = '<i class="fa-solid fa-check"></i>';
-        add.classList.add("btn--ok");
-        add.style.transform = "scale(1.15)";
-        setTimeout(() => (add.style.transform = ""), 200);
-        setTimeout(() => {
-          add.innerHTML = orig;
-          add.classList.remove("btn--ok");
-          delete add.dataset.busy;
-        }, 1600);
-      }
-    });
-
-    /* ---------- Formularios de maqueta ---------- */
-    const news = document.getElementById("formNews");
-    if (news) {
-      news.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const btn = news.querySelector("button");
-        const t = btn.textContent;
-        btn.textContent = "¡Suscrito! ✓";
-        btn.classList.add("btn--ok");
-        news.querySelector("input").value = "";
-        setTimeout(() => {
-          btn.textContent = t;
-          btn.classList.remove("btn--ok");
-        }, 2600);
-      });
-    }
-    const reserva = document.getElementById("formReserva");
-    if (reserva) {
-      reserva.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const btn = reserva.querySelector("button");
-        btn.textContent = "Solicitud enviada ✓";
-        btn.classList.add("btn--ok");
-        setTimeout(() => {
-          btn.textContent = "Solicitar reserva";
-          btn.classList.remove("btn--ok");
-          reserva.reset();
-        }, 2600);
-      });
-    }
   });
 })();

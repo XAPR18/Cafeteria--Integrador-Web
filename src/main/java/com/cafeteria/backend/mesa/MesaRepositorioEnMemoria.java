@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
+@org.springframework.context.annotation.Profile("memoria")
 public class MesaRepositorioEnMemoria implements MesaRepositorio {
     private final Map<Long, Mesa> datos = new ConcurrentHashMap<>();
     private final AtomicLong secuenciaId = new AtomicLong(0);

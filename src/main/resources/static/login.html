@@ -15,11 +15,11 @@
             <a href="/"><img src="/Image/Café 14 - Imagotipo.svg" alt="Café Catorce"></a>
             <div>
                 <h2>Bienvenido de vuelta a la esquina.</h2>
-                <p>Inicia sesión para acumular promociones del barrio y descuentos en tu correo.</p>
+                <p>Tu cuenta te acompaña en cada visita. Si trabajas con nosotros, accede a tu espacio de empleado.</p>
                 <ul class="acceso__lista">
-                    <li><i class="fa-solid fa-ticket"></i> Promociones exclusivas para vecinos</li>
-                    <li><i class="fa-solid fa-percent"></i> Descuentos en tu cumpleaños</li>
-                    <li><i class="fa-solid fa-bell"></i> Avisos de granos de temporada</li>
+                    <li><i class="fa-solid fa-ticket"></i> Una cuenta personal y segura</li>
+                    <li><i class="fa-solid fa-percent"></i> Acceso según tu perfil</li>
+                    <li><i class="fa-solid fa-bell"></i> La carta de la casa, siempre a mano</li>
                 </ul>
             </div>
             <p class="acceso__pie">&copy; 2026 Café Catorce</p>
@@ -32,26 +32,22 @@
                 <form id="form-login">
                     <div class="acceso__campo">
                         <label for="correo">Correo electrónico</label>
-                        <input type="email" id="correo" placeholder="tucorreo@ejemplo.com" required>
+                        <input type="email" id="correo" maxlength="160" autocomplete="username" placeholder="tucorreo@ejemplo.com" required>
                     </div>
                     <div class="acceso__campo">
                         <label for="clave">Contraseña</label>
-                        <input type="password" id="clave" placeholder="••••••••" required>
+                        <input type="password" id="clave" autocomplete="current-password" placeholder="••••••••" required>
                     </div>
                     <button type="submit" class="btn btn--solido btn--lg btn--full">Ingresar</button>
-                </form>
+                <p id="acceso-error" role="alert" hidden style="color:#e5544b;margin-top:1rem"></p></form>
                 <div class="acceso__sep">o</div>
                 <a href="/" class="acceso__invitado"><i class="fa-regular fa-user"></i> Continuar como invitado</a>
                 <p class="acceso__foot">¿No tienes cuenta? <a href="/registro.html">Regístrate aquí</a></p>
-                <p class="acceso__nota"><i class="fa-solid fa-circle-info"></i> Pantalla de maqueta del primer avance. El inicio de sesión real (JWT + roles) se implementa más adelante.</p>
+
             </div>
         </main>
     </div>
-    <script>
-      document.getElementById("form-login").addEventListener("submit", (e) => {
-        e.preventDefault();
-        window.location.href = "/";
-      });
-    </script>
+    <script src="/comun/auth.js"></script>
+    <script src="/comun/acceso.js"></script>
 </body>
 </html>

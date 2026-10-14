@@ -28,7 +28,7 @@
         <a href="/" class="nav__logo">
             <img src="/Image/Café 14 - Imagotipo.svg" alt="Café Catorce">
         </a>
-        <button class="nav__toggle" id="navToggle" aria-label="Abrir menú"><i class="fa-solid fa-bars"></i></button>
+        <button class="nav__toggle" id="navToggle" aria-label="Abrir menú" aria-controls="navMenu" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
         <div class="nav__menu" id="navMenu">
             <a href="#inicio" class="nav__link">Inicio</a>
             <a href="#menu" class="nav__link">Carta</a>
@@ -37,7 +37,7 @@
             <a href="#contacto" class="nav__link">Contacto</a>
             <div class="nav__acciones">
                 <a href="/login.html" class="btn btn--ghost"><i class="fa-regular fa-user"></i> Ingresar</a>
-                <a href="#reserva" class="btn btn--solido">Reservar mesa</a>
+                <a href="#reserva" class="btn btn--solido">Visítanos</a>
             </div>
         </div>
     </nav>
@@ -61,7 +61,7 @@
             </p>
             <div class="hero__acciones" data-reveal>
                 <a href="#menu" class="btn btn--solido btn--lg"><i class="fa-solid fa-book-open"></i> Ver la carta</a>
-                <a href="#reserva" class="btn btn--linea btn--lg">Reservar una mesa</a>
+                <a href="#reserva" class="btn btn--linea btn--lg">Conoce el local</a>
             </div>
         </div>
 
@@ -99,7 +99,7 @@
         </header>
 
         <nav class="filtros" id="filtros" data-reveal>
-            <button class="filtros__btn is-active" data-slug="todos">Todo</button>
+            <button class="filtros__btn is-active" data-slug="todos" aria-pressed="true">Todo</button>
         </nav>
 
         <p id="menuEstado" class="menu-estado" hidden></p>
@@ -111,7 +111,7 @@
     <section id="destacados" class="destacados">
         <header class="seccion__head seccion__head--centro" data-reveal>
             <span class="eyebrow"><i class="fa-solid fa-fire"></i> Los favoritos del barrio</span>
-            <h2 class="seccion__titulo">Los más pedidos</h2>
+            <h2 class="seccion__titulo">Selección de la casa</h2>
         </header>
         <div class="carrusel" data-reveal>
             <button class="carrusel__flecha" id="carPrev" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
@@ -147,28 +147,11 @@
     <section id="reserva" class="reserva">
         <div class="reserva__card" data-reveal>
             <div class="reserva__info">
-                <span class="eyebrow eyebrow--claro"><i class="fa-solid fa-chair"></i> Reserva tu mesita</span>
+                <span class="eyebrow eyebrow--claro"><i class="fa-solid fa-chair"></i> Tu próxima visita</span>
                 <h2>¿Vienes con compañía?</h2>
-                <p>Aparta tu mesa para el desayuno del fin de semana o la tarde de café. Te guardamos el lugar en la vereda.</p>
+                <p>Disfruta de un desayuno tranquilo o una tarde de café. Las reservas online estarán disponibles próximamente.</p>
             </div>
-            <form class="reserva__form" id="formReserva">
-                <div class="campo-fila">
-                    <input type="text" placeholder="Tu nombre" required>
-                    <input type="tel" placeholder="Teléfono" required>
-                </div>
-                <div class="campo-fila">
-                    <input type="date" required>
-                    <select required>
-                        <option value="">Personas</option>
-                        <option>2 personas</option>
-                        <option>3 personas</option>
-                        <option>4 personas</option>
-                        <option>5 o más</option>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn--solido btn--lg btn--full">Solicitar reserva</button>
-                <small class="reserva__nota">Maqueta del primer avance — la reserva real se conecta a la API más adelante.</small>
-            </form>
+            <div class="reserva__form"><p class="proximo">Reservas online · Próximamente</p><a href="#contacto" class="btn btn--solido">Consulta nuestros horarios</a></div>
         </div>
     </section>
 
@@ -179,11 +162,8 @@
             <div class="news__cuerpo">
                 <span class="eyebrow eyebrow--claro"><i class="fa-regular fa-paper-plane"></i> La vecindad de Catorce</span>
                 <h2>Sé parte de la vecindad</h2>
-                <p>Te escribimos cuando salgan granos especiales de temporada, promociones del barrio y novedades de la esquina.</p>
-                <form class="news__form" id="formNews">
-                    <div class="news__input"><i class="fa-regular fa-envelope"></i><input type="email" placeholder="Tu correo electrónico" required></div>
-                    <button type="submit" class="btn btn--solido">Suscribirme</button>
-                </form>
+                <p>Crea tu cuenta y forma parte de nuestra comunidad. Estamos preparando nuevas experiencias para ti.</p>
+                <a href="/registro.html" class="btn btn--solido">Crear mi cuenta</a><p class="proximo">Las promociones y suscripciones estarán disponibles próximamente.</p>
             </div>
         </div>
     </section>
@@ -194,11 +174,7 @@
             <div class="pie__col pie__col--marca">
                 <img src="/Image/Café 14 - Imagotipo.svg" alt="Café Catorce">
                 <p>Tu cafetería de esquina de siempre. Café recién hecho, tostadas caseras y buena charla en la vereda.</p>
-                <div class="pie__redes">
-                    <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                    <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                    <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
-                </div>
+
             </div>
             <div class="pie__col">
                 <h4>Horarios</h4>
@@ -210,7 +186,7 @@
             <div class="pie__col">
                 <h4>Ubicación</h4>
                 <p>Av. Principal esq. Los Sauces<br>Corazón del barrio</p>
-                <a href="#" class="pie__enlace"><i class="fa-solid fa-arrow-up-right-from-square"></i> Ver en el mapa</a>
+
             </div>
             <div class="pie__col">
                 <h4>Contacto</h4>
@@ -223,15 +199,14 @@
         </div>
         <div class="pie__base">
             <p>&copy; 2026 Café Catorce — El rinconcito del barrio.</p>
-            <div class="pie__legal">
-                <a href="#">Políticas de privacidad</a>
-                <a href="#">Términos y condiciones</a>
-            </div>
+
         </div>
     </footer>
 
     <button id="volverArriba" class="volver-arriba" aria-label="Volver arriba"><i class="fa-solid fa-arrow-up"></i></button>
 
+    <script src="/comun/auth.js"></script>
+    <script src="/comun/sesion.js"></script>
     <script src="/comun/config.js"></script>
     <script src="/js/menu.js"></script>
     <script src="/js/app.js"></script>

@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 @Repository
+@org.springframework.context.annotation.Profile("memoria")
 public class ProductoRepositorioEnMemoria implements ProductoRepositorio {
     private final Map<Long, Producto> datos = new ConcurrentHashMap<>();
     private final AtomicLong secuenciaId = new AtomicLong(0);

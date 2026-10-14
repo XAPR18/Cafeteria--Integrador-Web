@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 @Component
+@org.springframework.transaction.annotation.Transactional
 @Order(1)
 public class CargadorDatosIniciales implements CommandLineRunner {
     private static final Logger log = LoggerFactory.getLogger(CargadorDatosIniciales.class);

@@ -8,7 +8,7 @@
   --crema-2: #fbf7ef;
   --papel: #ffffff;
 
-  --oro: #c9a15e;
+  --oro: #d4ad70;
   --oro-2: #b98b45;
   --oro-claro: #e6ce9e;
 
@@ -46,6 +46,7 @@ body {
   background: var(--crema);
   line-height: 1.65;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 body.no-scroll { overflow: hidden; }
 
@@ -229,6 +230,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   color: #fff;
 }
 .hero__titulo em { font-style: italic; color: var(--oro-claro); }
+.hero__titulo { letter-spacing: -.045em; text-wrap: balance; }
+.hero__slides { background: var(--espresso); }
+.hero .btn--ghost, .nav:not(.is-scrolled) .btn--ghost { color: var(--crema); border-color: rgba(255,255,255,.4); }
+.hero__ficha { backdrop-filter: blur(12px); }
+.seccion__titulo { letter-spacing: -.035em; text-wrap: balance; }
+.carta__disponibilidad { font-size: .73rem; color: #48614f; background: #edf3ed; padding: .4rem .65rem; border-radius: 999px; }
+.proximo { margin: 1rem 0; font-size: .9rem; color: var(--oro-claro); }
+.acceso__main { background: radial-gradient(ellipse at top right, #ecdfc8, transparent 65%); }
+.acceso__card { background: var(--crema-2); border: 1px solid var(--linea); border-radius: 24px; padding: clamp(1.5rem,4vw,2.5rem); box-shadow: var(--sombra); }
+:focus-visible { outline: 3px solid var(--oro-2); outline-offset: 4px; }
+[hidden] { display: none !important; }
+@media (max-width: 600px) { .carta__pie { flex-wrap: wrap; gap: .7rem; } .hero__titulo { font-size: clamp(2.4rem,10vw,3.4rem); } }
 .hero__texto {
   font-size: clamp(1rem, 1.5vw, 1.2rem);
   color: rgba(255, 255, 255, 0.86);
@@ -718,3 +731,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .acceso__foot a { color: var(--oro-2); font-weight: 600; }
 .acceso__nota { margin-top: 1.3rem; font-size: 0.8rem; color: var(--tinta-suave); background: var(--crema-2); border: 1px dashed var(--linea); border-radius: var(--r-sm); padding: 0.7rem 0.9rem; }
 @media (max-width: 860px) { .acceso { grid-template-columns: 1fr; } .acceso__lado { display: none; } }
+
+/* Carta y accesibilidad */
+:root { --color-brand: #b68a52; }
+.carta { border: 1px solid rgba(100,74,42,.12); box-shadow: 0 8px 30px rgba(41,29,17,.055); }
+.carta__nombre { letter-spacing: -.025em; line-height: 1.22; }
+.carta__precio strong { font-variant-numeric: tabular-nums; }
+.carta__foto img { transition: transform .45s ease; }
+.carta:hover .carta__foto img { transform: scale(1.035); }
+.nav__link:focus-visible, .btn:focus-visible, button:focus-visible { outline: 2px solid #b68a52; outline-offset: 5px; }
+@media (prefers-reduced-motion: reduce) { .carta__foto img { transition: none; } }
+@media (max-width: 780px) { .nav__menu:not(.abierto) { visibility: hidden; } .nav__menu.abierto { visibility: visible; } }

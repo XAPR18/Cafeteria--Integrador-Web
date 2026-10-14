@@ -2,13 +2,25 @@ package com.cafeteria.backend.producto;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "productos")
 public class Producto {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
     private String descripcion;
+    @Column(nullable = false, precision = 6, scale = 2)
     private BigDecimal precio;
+    @Column(name = "seccion_id", nullable = false)
     private Long seccionId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name="seccion_id", insertable=false, updatable=false)
+    private com.cafeteria.backend.seccion.Seccion seccion;
     private boolean disponible;
+    @Column(length=300)
     private String imagenUrl;
     private String etiqueta;
 

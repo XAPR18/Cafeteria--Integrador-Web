@@ -13,7 +13,7 @@
   const esc = (t) => {
     const d = document.createElement("div");
     d.textContent = t == null ? "" : String(t);
-    return d.innerHTML;
+    return d.innerHTML.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   };
 
   const IMG_FALLBACK =
@@ -40,8 +40,7 @@
     return `<article class="carta" data-slug="${esc(p.seccionSlug || "")}">
       <div class="carta__foto">
         ${badge}
-        <button class="carta__fav" aria-label="Favorito"><i class="fa-regular fa-heart"></i></button>
-        <img src="${img}" alt="${esc(p.nombre)}" loading="lazy" onerror="this.src='${IMG_FALLBACK}'">
+        <img src="${img}" alt="${esc(p.nombre)}" loading="lazy" onerror="this.onerror=null;this.src='${IMG_FALLBACK}'">
         ${agotado}
       </div>
       <div class="carta__cuerpo">
@@ -50,7 +49,7 @@
         <p class="carta__desc">${esc(p.descripcion || "")}</p>
         <div class="carta__pie">
           <div class="carta__precio"><small>PRECIO</small><strong>${soles(p.precio)}</strong></div>
-          <button class="carta__add" aria-label="Agregar"><i class="fa-solid fa-plus"></i></button>
+          <span class="carta__disponibilidad">${p.disponible === false ? "No disponible" : "Disponible"}</span>
         </div>
       </div>
     </article>`;
@@ -62,14 +61,14 @@
       <article class="carta" data-slug="${esc(p.seccionSlug || "")}">
         <div class="carta__foto">
           <span class="carta__badge">${esc(p.etiqueta || "TOP")}</span>
-          <img src="${img}" alt="${esc(p.nombre)}" loading="lazy" onerror="this.src='${IMG_FALLBACK}'">
+          <img src="${img}" alt="${esc(p.nombre)}" loading="lazy" onerror="this.onerror=null;this.src='${IMG_FALLBACK}'">
         </div>
         <div class="carta__cuerpo">
           <span class="carta__seccion">${esc(p.seccionNombre || "")}</span>
           <h3 class="carta__nombre">${esc(p.nombre)}</h3>
           <div class="carta__pie">
             <div class="carta__precio"><small>PRECIO</small><strong>${soles(p.precio)}</strong></div>
-            <button class="carta__add" aria-label="Agregar"><i class="fa-solid fa-plus"></i></button>
+            <span class="carta__disponibilidad">${p.disponible === false ? "No disponible" : "Disponible"}</span>
           </div>
         </div>
       </article>
@@ -84,14 +83,16 @@
         b.className = "filtros__btn";
         b.dataset.slug = s.slug;
         b.textContent = s.nombre;
+        b.setAttribute("aria-pressed", "false");
         filtros.appendChild(b);
       });
 
     filtros.addEventListener("click", (e) => {
       const b = e.target.closest("button");
       if (!b) return;
-      filtros.querySelectorAll("button").forEach((x) => x.classList.remove("is-active"));
+      filtros.querySelectorAll("button").forEach((x) => { x.classList.remove("is-active"); x.setAttribute("aria-pressed", "false"); });
       b.classList.add("is-active");
+      b.setAttribute("aria-pressed", "true");
       const slug = b.dataset.slug;
       cont.querySelectorAll(".carta").forEach((c) => {
         c.style.display = slug === "todos" || c.dataset.slug === slug ? "" : "none";
@@ -117,15 +118,18 @@
 
   async function cargar() {
     estado.hidden = true;
+    carrusel.replaceChildren();
     skeletons(8);
     try {
       const [rSec, rProd] = await Promise.all([
-        fetch(`${API}/api/secciones`),
-        fetch(`${API}/api/productos`),
+        fetch(`${API}/api/catalogo/secciones`),
+        fetch(`${API}/api/catalogo/productos`),
       ]);
       if (!rSec.ok || !rProd.ok) throw new Error("respuesta no válida");
       const secciones = await rSec.json();
-      const productos = await rProd.json();
+      const todosProductos = await rProd.json();
+      const activas = new Set(secciones.filter((s) => s.activa).map((s) => s.id));
+      const productos = todosProductos.filter((p) => activas.has(p.seccionId));
 
       if (!filtros.dataset.listo) {
         pintarFiltros(secciones);

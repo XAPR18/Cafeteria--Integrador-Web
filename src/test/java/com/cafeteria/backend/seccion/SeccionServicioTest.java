@@ -3,6 +3,9 @@ package com.cafeteria.backend.seccion;
 import com.cafeteria.backend.common.RecursoNoEncontradoException;
 import com.cafeteria.backend.common.ReglaNegocioException;
 import com.cafeteria.backend.seccion.dto.SeccionSolicitud;
+import com.cafeteria.backend.producto.Producto;
+import com.cafeteria.backend.producto.ProductoRepositorioEnMemoria;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,10 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class SeccionServicioTest {
 
     private SeccionServicio servicio;
+    private ProductoRepositorioEnMemoria productos;
 
     @BeforeEach
     void inicializar() {
-        servicio = new SeccionServicio(new SeccionRepositorioEnMemoria());
+        productos = new ProductoRepositorioEnMemoria();
+        servicio = new SeccionServicio(new SeccionRepositorioEnMemoria(), productos);
     }
 
     private SeccionSolicitud solicitud(String nombre, String slug) {
@@ -87,5 +92,13 @@ class SeccionServicioTest {
     @DisplayName("eliminar() con un id inexistente lanza RecursoNoEncontradoException")
     void eliminarInexistente() {
         assertThrows(RecursoNoEncontradoException.class, () -> servicio.eliminar(1L));
+    }
+
+    @Test
+    void noEliminaSeccionConProductos() {
+        Long id = servicio.crear(solicitud("Cafes", "cafes")).getId();
+        productos.guardar(new Producto(null, "Latte", null, new BigDecimal("8.50"), id, true, null, null));
+        assertThatThrownBy(() -> servicio.eliminar(id)).isInstanceOf(ReglaNegocioException.class);
+        assertThat(servicio.obtener(id).getNombre()).isEqualTo("Cafes");
     }
 }

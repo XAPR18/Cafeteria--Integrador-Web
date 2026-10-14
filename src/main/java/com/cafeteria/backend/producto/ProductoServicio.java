@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class ProductoServicio {
     private final ProductoRepositorio productoRepositorio;
     private final SeccionRepositorio seccionRepositorio;
@@ -20,13 +21,19 @@ public class ProductoServicio {
         this.seccionRepositorio = seccionRepositorio;
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<ProductoRespuesta> listar(Long seccionId) {
         List<Producto> productos = (seccionId == null)
                 ? productoRepositorio.listar()
                 : productoRepositorio.listarPorSeccion(seccionId);
-        return productos.stream().map(this::aRespuesta).toList();
+        var secciones = seccionRepositorio.listar().stream().collect(java.util.stream.Collectors.toMap(Seccion::getId, java.util.function.Function.identity()));
+        return productos.stream().map(p -> {
+            Seccion s = secciones.get(p.getSeccionId());
+            return ProductoRespuesta.desde(p, s == null ? null : s.getNombre(), s == null ? null : s.getSlug());
+        }).toList();
     }
 
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public ProductoRespuesta obtener(Long id) {
         return aRespuesta(buscar(id));
     }

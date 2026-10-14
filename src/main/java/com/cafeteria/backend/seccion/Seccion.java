@@ -1,8 +1,15 @@
 package com.cafeteria.backend.seccion;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "secciones")
 public class Seccion {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
+    @Column(nullable = false, unique = true, length = 40)
     private String slug;
     private String descripcion;
     private boolean activa;

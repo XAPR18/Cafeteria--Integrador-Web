@@ -3,16 +3,20 @@ package com.cafeteria.backend.seccion;
 import com.cafeteria.backend.common.RecursoNoEncontradoException;
 import com.cafeteria.backend.common.ReglaNegocioException;
 import com.cafeteria.backend.seccion.dto.SeccionSolicitud;
+import com.cafeteria.backend.producto.ProductoRepositorio;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@org.springframework.transaction.annotation.Transactional
 public class SeccionServicio {
     private final SeccionRepositorio repositorio;
+    private final ProductoRepositorio productos;
 
-    public SeccionServicio(SeccionRepositorio repositorio) {
+    public SeccionServicio(SeccionRepositorio repositorio, ProductoRepositorio productos) {
         this.repositorio = repositorio;
+        this.productos = productos;
     }
 
     public List<Seccion> listar() {
@@ -55,11 +59,14 @@ public class SeccionServicio {
         if (!repositorio.existePorId(id)) {
             throw RecursoNoEncontradoException.de("la seccion", id);
         }
+        if (productos.existeAlgunoEnSeccion(id)) {
+            throw new ReglaNegocioException("La seccion contiene productos. Reasignalos o desactiva la seccion.");
+        }
         repositorio.eliminar(id);
     }
 
     private String normalizarSlug(String slug) {
-        return slug == null ? null : slug.trim().toLowerCase();
+        return slug == null ? null : slug.trim().toLowerCase(java.util.Locale.ROOT);
     }
 
     private String textoOpcional(String valor) {

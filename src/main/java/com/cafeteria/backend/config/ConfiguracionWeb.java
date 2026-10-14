@@ -11,5 +11,7 @@ public class ConfiguracionWeb implements WebMvcConfigurer {
     public void addViewControllers(@NonNull ViewControllerRegistry registro) {
         registro.addRedirectViewController("/admin", "/admin/");
         registro.addViewController("/admin/").setViewName("forward:/admin/index.html");
+        registro.addRedirectViewController("/empleado", "/empleado/");
+        registro.addViewController("/empleado/").setViewName("forward:/empleado/index.html");
     }
 }
