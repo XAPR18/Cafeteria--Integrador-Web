@@ -65,7 +65,19 @@ public class ManejadorGlobalErrores {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RespuestaError> errorInesperado(Exception ex, HttpServletRequest req) {
+    public ResponseEntity<RespuestaError> errorInesperado(Exception ex, HttpServletRequest req) throws Exception {
+        // Las excepciones de Spring Security deben llegar a su propio filtro (401/403), no convertirse en 500.
+        if (ex instanceof org.springframework.security.access.AccessDeniedException
+                || ex instanceof org.springframework.security.core.AuthenticationException) {
+            throw ex;
+        }
+        // Excepciones de Spring MVC que ya conocen su estado HTTP (400 por parametro faltante, 415, 406, 413...).
+        if (ex instanceof org.springframework.web.ErrorResponse conocida) {
+            int estado = conocida.getStatusCode().value();
+            String detalle = conocida.getBody().getDetail();
+            return ResponseEntity.status(estado).body(RespuestaError.de(
+                    estado, "Solicitud rechazada", detalle == null ? "Solicitud no valida" : detalle, req.getRequestURI()));
+        }
         log.error("Error inesperado en {}", req.getRequestURI(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(RespuestaError.de(
                 500, "Internal Server Error",

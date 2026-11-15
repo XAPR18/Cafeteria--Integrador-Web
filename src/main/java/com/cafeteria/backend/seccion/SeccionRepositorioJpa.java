@@ -2,10 +2,8 @@ package com.cafeteria.backend.seccion;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 @Repository
-@Profile("!memoria")
 public class SeccionRepositorioJpa implements SeccionRepositorio {
     private final SeccionJpaRepository datos;
     public SeccionRepositorioJpa(SeccionJpaRepository datos) { this.datos = datos; }

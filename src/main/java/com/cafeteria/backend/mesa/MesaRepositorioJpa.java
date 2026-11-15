@@ -2,10 +2,8 @@ package com.cafeteria.backend.mesa;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 @Repository
-@Profile("!memoria")
 public class MesaRepositorioJpa implements MesaRepositorio {
     private final MesaJpaRepository datos;
     public MesaRepositorioJpa(MesaJpaRepository datos) { this.datos = datos; }

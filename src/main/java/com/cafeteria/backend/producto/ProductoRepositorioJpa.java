@@ -2,10 +2,8 @@ package com.cafeteria.backend.producto;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
-import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 @Repository
-@Profile("!memoria")
 public class ProductoRepositorioJpa implements ProductoRepositorio {
     private final ProductoJpaRepository datos;
     public ProductoRepositorioJpa(ProductoJpaRepository datos) { this.datos = datos; }

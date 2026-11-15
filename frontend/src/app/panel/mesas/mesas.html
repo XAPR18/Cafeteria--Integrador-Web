@@ -1,0 +1,108 @@
+<div class="encabezado">
+  <div>
+    <h1>{{ esAdmin() ? 'Mesas y sala' : 'Sala' }}</h1>
+    <p>Toca un estado para actualizar la mesa en tiempo real.</p>
+  </div>
+  <div class="fila">
+    <button type="button" class="btn btn--borde btn--sm" (click)="cargar()" [disabled]="cargando()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+    @if (esAdmin()) {
+      <button type="button" class="btn btn--oro" (click)="abrir('nueva')"><i class="fa-solid fa-plus"></i> Nueva mesa</button>
+    }
+  </div>
+</div>
+
+<div class="kpis">
+  <div class="tarjeta kpi"><div class="kpi__icono" style="background: var(--ok-bg); color: var(--ok)"><i class="fa-solid fa-circle-check"></i></div><div><strong class="num">{{ resumen().disponibles }}</strong><span>Disponibles</span></div></div>
+  <div class="tarjeta kpi"><div class="kpi__icono" style="background: var(--error-bg); color: var(--error)"><i class="fa-solid fa-utensils"></i></div><div><strong class="num">{{ resumen().ocupadas }}</strong><span>Ocupadas</span></div></div>
+  <div class="tarjeta kpi"><div class="kpi__icono"><i class="fa-solid fa-chair"></i></div><div><strong class="num">{{ resumen().total }}</strong><span>Mesas en total</span></div></div>
+  <div class="tarjeta kpi"><div class="kpi__icono"><i class="fa-solid fa-user-group"></i></div><div><strong class="num">{{ resumen().plazas }}</strong><span>Plazas</span></div></div>
+</div>
+
+@if (cargando()) {
+  <div class="mapa">@for (i of [1,2,3,4,5,6]; track i) { <div class="esqueleto" style="height: 170px"></div> }</div>
+} @else if (error(); as e) {
+  <div class="alerta alerta--error"><i class="fa-solid fa-circle-exclamation"></i>{{ e }}</div>
+} @else if (mesas().length === 0) {
+  <div class="tarjeta vacio"><i class="fa-solid fa-chair"></i><h3>No hay mesas registradas</h3></div>
+} @else {
+  @for (g of porZona(); track g.zona) {
+    <section class="zona">
+      <h2>{{ ZONAS[g.zona] }} <small>{{ g.mesas.length }} {{ g.mesas.length === 1 ? 'mesa' : 'mesas' }}</small></h2>
+      <div class="mapa">
+        @for (m of g.mesas; track m.id) {
+          <article class="tarjeta mesa" [class]="'tarjeta mesa ' + m.estado">
+            <div class="mesa__cab">
+              <span class="mesa__num">{{ m.numero }}</span>
+              <span class="insignia" [class]="'insignia ' + ESTADOS[m.estado].clase">{{ ESTADOS[m.estado].texto }}</span>
+            </div>
+            <div class="mesa__meta">
+              <span><i class="fa-solid fa-user-group"></i> {{ m.capacidad }}</span>
+              <span>{{ TIPOS[m.tipo] }}</span>
+            </div>
+            @if (proxima(m.id); as r) {
+              <div class="proxima"><i class="fa-regular fa-clock"></i> <strong class="num">{{ r.horaInicio }}</strong> · {{ r.clienteNombre }} ({{ r.personas }})</div>
+            }
+            <div class="estados" role="group" [attr.aria-label]="'Estado de la mesa ' + m.numero">
+              @for (e of listaEstados; track e) {
+                <button type="button" [class]="e" [class.activo]="m.estado === e" [disabled]="procesando() === m.id"
+                        (click)="cambiarEstado(m, e)" [attr.aria-pressed]="m.estado === e">{{ ESTADOS[e].texto }}</button>
+              }
+            </div>
+            @if (esAdmin()) {
+              <div class="mesa__admin">
+                <button type="button" class="btn-icono" (click)="abrir(m)" [attr.aria-label]="'Editar mesa ' + m.numero" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                <button type="button" class="btn-icono btn-icono--peligro" (click)="eliminar(m)" [attr.aria-label]="'Eliminar mesa ' + m.numero" title="Eliminar"><i class="fa-regular fa-trash-can"></i></button>
+              </div>
+            }
+          </article>
+        }
+      </div>
+    </section>
+  }
+}
+
+@if (editando(); as e) {
+  <app-modal [titulo]="e === 'nueva' ? 'Nueva mesa' : 'Editar mesa ' + e.numero" (cerrar)="editando.set(null)">
+    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+      <div class="modal__cuerpo">
+        @if (errorForm(); as err) { <div class="alerta alerta--error"><i class="fa-solid fa-circle-exclamation"></i>{{ err }}</div> }
+        <div class="rejilla-form">
+          <div class="campo">
+            <label for="numero">Número</label>
+            <input id="numero" class="control" type="number" min="1" max="999" formControlName="numero">
+            <app-error-campo [control]="form.controls.numero" nombre="El número" />
+          </div>
+          <div class="campo">
+            <label for="capacidad">Capacidad (personas)</label>
+            <input id="capacidad" class="control" type="number" min="1" max="20" formControlName="capacidad" (change)="sugerirTipo()">
+            <app-error-campo [control]="form.controls.capacidad" nombre="La capacidad" />
+          </div>
+          <div class="campo">
+            <label for="tipo">Tipo</label>
+            <select id="tipo" class="control" formControlName="tipo">
+              @for (t of listaTipos; track t) { <option [value]="t">{{ TIPOS[t] }}</option> }
+            </select>
+          </div>
+          <div class="campo">
+            <label for="zona">Zona</label>
+            <select id="zona" class="control" formControlName="zona">
+              @for (z of listaZonas; track z) { <option [value]="z">{{ ZONAS[z] }}</option> }
+            </select>
+          </div>
+          <div class="campo completo">
+            <label for="estado">Estado inicial</label>
+            <select id="estado" class="control" formControlName="estado">
+              @for (s of listaEstados; track s) { <option [value]="s">{{ ESTADOS[s].texto }}</option> }
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal__pie">
+        <button type="button" class="btn btn--fantasma" (click)="editando.set(null)">Cancelar</button>
+        <button type="submit" class="btn btn--oscuro" [disabled]="guardando()">
+          @if (guardando()) { <span class="girando"></span> } Guardar mesa
+        </button>
+      </div>
+    </form>
+  </app-modal>
+}

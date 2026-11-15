@@ -1,0 +1,14 @@
+/* Estilos compartidos por las páginas del panel (cabecera, KPIs, barra de herramientas). */
+.encabezado { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.encabezado h1 { font-size: clamp(1.6rem, 3vw, 2.1rem); }
+.encabezado p { color: var(--tinta-suave); margin-top: .3rem; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.kpi { padding: 1.1rem 1.25rem; display: flex; gap: 1rem; align-items: center; }
+.kpi__icono { width: 44px; height: 44px; flex: none; border-radius: 12px; display: grid; place-items: center; background: var(--oro-claro); color: #7a5520; }
+.kpi strong { display: block; font-family: var(--serif); font-size: 1.7rem; line-height: 1.1; }
+.kpi span { font-size: .82rem; color: var(--tinta-suave); }
+.herramientas { display: flex; gap: .75rem; flex-wrap: wrap; align-items: center; padding: 1rem 1.25rem; border-bottom: 1px solid var(--linea); }
+.herramientas .buscar { flex: 1; min-width: 200px; }
+.herramientas select.control { width: auto; min-width: 170px; }
+.nombre-celda strong { display: block; }
+.nombre-celda small { color: var(--tinta-tenue); }

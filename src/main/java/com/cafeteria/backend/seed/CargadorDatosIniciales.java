@@ -17,7 +17,14 @@ import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 
+/**
+ * Carga el menu y las mesas de demostracion solo si la base esta vacia.
+ * Con app.datos-demo=false (perfil supabase) no se ejecuta: borrar todas las secciones
+ * en produccion no debe hacer reaparecer el menu de ejemplo al reiniciar.
+ */
 @Component
+@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
+        name = "app.datos-demo", havingValue = "true", matchIfMissing = true)
 @org.springframework.transaction.annotation.Transactional
 @Order(1)
 public class CargadorDatosIniciales implements CommandLineRunner {

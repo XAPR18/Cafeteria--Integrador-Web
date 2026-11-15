@@ -7,6 +7,11 @@
 !.mvn/wrapper/maven-wrapper.properties
 !src/
 !src/**
+!frontend/
+!frontend/**
+frontend/node_modules/
+frontend/.angular/
+src/main/resources/static/
 **/.env
 **/.env.*
 **/*.log

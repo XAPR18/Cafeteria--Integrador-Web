@@ -1,0 +1,74 @@
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<header class="cabecera" [class.cabecera--transparente]="transparente()" [class.cabecera--clara]="desplazado() && !menuAbierto()" [class.cabecera--inicio]="enInicio()">
+  <div class="contenedor cabecera__fila">
+    <a routerLink="/" class="marca" aria-label="Café Catorce, inicio">
+      <img src="Image/Café 14 - logo.svg" alt="" width="40" height="40">
+      <span>Café <em>Catorce</em></span>
+    </a>
+
+    <nav class="nav" [class.abierto]="menuAbierto()" aria-label="Principal">
+      <a routerLink="/" routerLinkActive="activo" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+      <a routerLink="/carta" routerLinkActive="activo">Carta</a>
+      <a routerLink="/reservar" routerLinkActive="activo">Reservas</a>
+      <a routerLink="/" fragment="esquina">La esquina</a>
+      <a routerLink="/" fragment="contacto">Contacto</a>
+
+      <div class="nav__acciones">
+        @if (auth.usuario(); as u) {
+          @if (u.rol === 'CLIENTE') {
+            <a routerLink="/mi-cuenta" class="btn btn--claro btn--sm"><i class="fa-regular fa-user"></i> {{ primerNombre() }}</a>
+          } @else {
+            <a [routerLink]="auth.inicioSegunRol()" class="btn btn--claro btn--sm"><i class="fa-solid fa-gauge"></i> Ir al panel</a>
+          }
+          <button type="button" class="btn btn--fantasma btn--sm salir" (click)="auth.salir()">Salir</button>
+        } @else {
+          <a routerLink="/login" class="btn btn--fantasma btn--sm salir"><i class="fa-regular fa-user"></i> Ingresar</a>
+        }
+        <a routerLink="/reservar" class="btn btn--oro btn--sm"><i class="fa-regular fa-calendar"></i> Reservar mesa</a>
+      </div>
+    </nav>
+
+    <button type="button" class="hamburguesa" (click)="menuAbierto.set(!menuAbierto())"
+            [attr.aria-expanded]="menuAbierto()" aria-label="Abrir menú">
+      <i class="fa-solid" [class.fa-bars]="!menuAbierto()" [class.fa-xmark]="menuAbierto()"></i>
+    </button>
+  </div>
+</header>
+
+<main id="contenido">
+  <router-outlet />
+</main>
+
+<footer class="pie" id="contacto">
+  <div class="contenedor pie__rejilla">
+    <div>
+      <a routerLink="/" class="marca"><img src="Image/Café 14 - logo.svg" alt="" width="40" height="40"><span>Café <em>Catorce</em></span></a>
+      <p class="pie__lema">Tu cafetería de esquina de siempre. Café recién hecho, tostadas caseras y buena charla en la vereda.</p>
+    </div>
+    <div>
+      <h4>Horarios</h4>
+      <ul class="pie__lista">
+        <li><span>Lunes a viernes</span><strong>07:00 – 20:30</strong></li>
+        <li><span>Sábados y domingos</span><strong>08:00 – 21:00</strong></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Ubicación</h4>
+      <p>Av. Principal esq. Los Sauces</p>
+      <p class="tenue">Corazón del barrio</p>
+    </div>
+    <div>
+      <h4>Contacto</h4>
+      <p><a href="mailto:cafecatorce14@gmail.com"><i class="fa-regular fa-envelope"></i> cafecatorce14&#64;gmail.com</a></p>
+      <p><a href="tel:+51999999999"><i class="fa-solid fa-phone"></i> +51 999 999 999</a></p>
+      <p class="tenue">Pedidos por WhatsApp de 8 a. m. a 6 p. m.</p>
+    </div>
+  </div>
+  <div class="contenedor pie__base">
+    <span>© {{ anio }} Café Catorce — El rinconcito del barrio.</span>
+    <span><a routerLink="/reservar">Reservar</a> · <a routerLink="/carta">Carta</a> · <a routerLink="/login">Acceso del personal</a></span>
+  </div>
+</footer>
+
+<button type="button" class="volver-arriba" [class.visible]="volverVisible()" (click)="arriba()" aria-label="Volver arriba"><i class="fa-solid fa-arrow-up"></i></button>

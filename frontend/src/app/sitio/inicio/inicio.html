@@ -1,0 +1,174 @@
+<!-- ===================== HERO / SLIDER ===================== -->
+<div class="hero-pista" #pistaHero>
+<header class="hero" (pointermove)="paralaje($event)" (mouseenter)="detener()" (mouseleave)="arrancar()">
+  <div class="hero__slides" aria-hidden="true">
+    @for (s of slides; track s.foto; let i = $index) {
+      <div class="hero__slide" [class.activa]="slideActual() === i" [style.background-image]="'url(' + s.foto + ')'"></div>
+    }
+  </div>
+  <div class="hero__velo"></div>
+  <div class="hero__desenfoque" aria-hidden="true"></div>
+  <div class="hero__granos" aria-hidden="true">@for (g of [1,2,3,4,5,6]; track g) { <span></span> }</div>
+
+  <div class="hero__rejilla">
+    <div class="hero__contenido">
+      <span class="eyebrow eyebrow--claro" appRevelar><i class="fa-solid fa-mug-hot"></i> Tu cafetería de esquina, de siempre</span>
+      <h1 class="hero__titulo" appRevelar [retraso]="120">La parada de cada mañana en la <em>esquina</em> del barrio.</h1>
+      <p class="hero__texto" appRevelar [retraso]="240">Café de especialidad tostado por lotes, medialunas recién horneadas y sándwiches
+        prensados al momento. Una mesita en la vereda con sol te espera.</p>
+      <div class="hero__acciones" appRevelar [retraso]="360">
+        <a routerLink="/reservar" class="btn btn--oro btn--lg"><i class="fa-regular fa-calendar-check"></i> Reservar una mesa</a>
+        <a routerLink="/carta" class="btn btn--claro btn--lg"><i class="fa-solid fa-book-open"></i> Ver la carta</a>
+      </div>
+    </div>
+    <div class="hero__taza" appRevelar desde="zoom" [retraso]="300">
+      <app-cafe-derramado [progreso]="derrame()" />
+      @if (derrame() < 0.05) { <span class="hero__pista"><i class="fa-solid fa-computer-mouse"></i> Desliza hacia abajo</span> }
+    </div>
+  </div>
+
+  <div class="hero__ficha" appRevelar [retraso]="480">
+    <div><span>Abrimos</span><strong>7:00 a. m.</strong></div>
+    <span class="hero__sep"></span>
+    <div><span>Granos de</span><strong>especialidad</strong></div>
+  </div>
+
+  <button type="button" class="hero__flecha hero__flecha--prev" (click)="ir(slideActual() - 1)" aria-label="Imagen anterior"><i class="fa-solid fa-chevron-left"></i></button>
+  <button type="button" class="hero__flecha hero__flecha--next" (click)="ir(slideActual() + 1)" aria-label="Imagen siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+  <div class="hero__puntos">
+    @for (s of slides; track s.foto; let i = $index) {
+      <button type="button" [class.activo]="slideActual() === i" (click)="ir(i)" [attr.aria-label]="'Ver ' + s.texto"></button>
+    }
+  </div>
+  <a href="#carta-inicio" class="hero__bajar" aria-label="Bajar a la carta"><span></span></a>
+</header>
+</div>
+
+<!-- ===================== SELLOS ===================== -->
+<section class="sellos">
+  @for (s of sellos; track s.titulo; let i = $index) {
+    <div class="sello" appRevelar [retraso]="i * 90">
+      <i class="fa-solid" [class]="'fa-solid ' + s.icono"></i>
+      <div><strong>{{ s.titulo }}</strong><span>{{ s.texto }}</span></div>
+    </div>
+  }
+</section>
+
+<!-- ===================== CARTA ===================== -->
+<section class="seccion" id="carta-inicio">
+  <header class="seccion__cabeza" appRevelar>
+    <span class="eyebrow"><i class="fa-solid fa-star-of-life"></i> Lo rico de todos los días</span>
+    <h2 class="seccion__titulo">Nuestra carta de la esquina</h2>
+    <p>Desde el cortado rápido en la barra hasta el desayuno largo del fin de semana. Se actualiza en vivo desde nuestra cocina.</p>
+  </header>
+
+  <nav class="filtros" appRevelar aria-label="Secciones de la carta">
+    <button type="button" class="chip" [class.activo]="filtro() === null" (click)="filtro.set(null)">Todo</button>
+    @for (s of secciones(); track s.id) {
+      <button type="button" class="chip" [class.activo]="filtro() === s.slug" (click)="filtro.set(s.slug)">{{ s.nombre }}</button>
+    }
+  </nav>
+
+  <div class="rejilla">
+    @if (productos() === null) {
+      @for (i of [1,2,3,4]; track i) { <div class="esqueleto" style="height: 380px"></div> }
+    } @else if (fallo()) {
+      <div class="alerta alerta--error completo"><i class="fa-solid fa-plug-circle-xmark"></i> No pudimos cargar la carta en este momento.</div>
+    } @else {
+      @for (p of cartaVisible(); track p.id; let i = $index) {
+        <div appRevelar [retraso]="(i % 4) * 90"><app-tarjeta-producto [producto]="p" appInclinar [grados]="8" /></div>
+      }
+    }
+  </div>
+  <div class="centro mt-3" appRevelar>
+    <a routerLink="/carta" class="btn btn--oscuro btn--lg">Ver la carta completa <i class="fa-solid fa-arrow-right"></i></a>
+  </div>
+</section>
+
+<!-- ===================== DESTACADOS (carrusel 3D) ===================== -->
+@if (destacados().length) {
+  <section class="destacados">
+    <header class="seccion__cabeza seccion__cabeza--centro" appRevelar>
+      <span class="eyebrow eyebrow--claro"><i class="fa-solid fa-fire"></i> Los favoritos del barrio</span>
+      <h2 class="seccion__titulo">Selección de la casa</h2>
+    </header>
+    <div class="carrusel" appRevelar>
+      <button type="button" class="carrusel__flecha" (click)="desplazar(-1)" aria-label="Anteriores"><i class="fa-solid fa-chevron-left"></i></button>
+      <div class="carrusel__pista" #pista>
+        @for (p of destacados(); track p.id) {
+          <div class="carrusel__item" appInclinar [grados]="12"><app-tarjeta-producto [producto]="p" /></div>
+        }
+      </div>
+      <button type="button" class="carrusel__flecha" (click)="desplazar(1)" aria-label="Siguientes"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </section>
+}
+
+<!-- ===================== LA ESQUINA ===================== -->
+<section class="historia" id="esquina">
+  <div class="historia__texto" appRevelar desde="izquierda">
+    <span class="eyebrow"><i class="fa-solid fa-users-line"></i> La esquina del barrio</span>
+    <h2 class="seccion__titulo">El punto de encuentro de todos los días</h2>
+    <p>Abrimos temprano para arrancar el día con un buen café y dejamos las puertas abiertas para las tardes de lectura
+      y las charlas entre vecinos. Sin prisas ni protocolos.</p>
+    <ul class="historia__lista">
+      <li><i class="fa-solid fa-mug-hot"></i><div><strong>Siempre a tu ritmo</strong><p>Barra rápida o sobremesa tranquila, tú eliges.</p></div></li>
+      <li><i class="fa-solid fa-leaf"></i><div><strong>Producto honesto</strong><p>Ingredientes de estación y proveedores cercanos.</p></div></li>
+      <li><i class="fa-solid fa-chair"></i><div><strong>Salón, vereda y barra</strong><p>Elige tu zona favorita al reservar.</p></div></li>
+    </ul>
+  </div>
+
+  <div class="historia__galeria" appRevelar desde="derecha">
+    <figure class="historia__img historia__img--grande" appVideoAlPasar appInclinar [grados]="6">
+      <img [src]="FOTO('photo-1453614512568-c4024d13c247', 1100)" alt="El salón de Café Catorce" loading="lazy">
+      <video [src]="VIDEOS.local" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <span class="sello-play"><i class="fa-solid fa-play"></i> Pasa el puntero</span>
+    </figure>
+    <figure class="historia__img" appVideoAlPasar appInclinar [grados]="10">
+      <img [src]="FOTO('photo-1495474472287-4d71bcdd2085', 700)" alt="Taza de café humeante" loading="lazy">
+      <video [src]="VIDEOS.vapor" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <span class="sello-play"><i class="fa-solid fa-play"></i> Recién servido</span>
+    </figure>
+    <div class="historia__tarjeta" appVideoAlPasar>
+      <video [src]="VIDEOS.espresso" muted loop playsinline preload="none" aria-hidden="true"></video>
+      <div class="historia__tarjeta-texto">
+        <i class="fa-regular fa-clock"></i>
+        <strong>Desde las 7:00 a. m.</strong>
+        <span>Listos con el primer espresso del día</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== RESERVA (video de fondo) ===================== -->
+<section class="reserva">
+  <div class="reserva__tarjeta" appRevelar desde="zoom">
+    <video class="reserva__video" [src]="VIDEOS.latte" muted loop playsinline preload="none" appVideoVisible aria-hidden="true"></video>
+    <div class="reserva__info">
+      <span class="eyebrow eyebrow--claro"><i class="fa-solid fa-chair"></i> Tu próxima visita</span>
+      <h2>¿Vienes con compañía?</h2>
+      <p>Elige el día, la hora y cuántos son. Te mostramos al instante las mesas libres y guardamos la tuya.</p>
+    </div>
+    <div class="reserva__acciones">
+      <a routerLink="/reservar" class="btn btn--oro btn--lg"><i class="fa-regular fa-calendar-check"></i> Reservar ahora</a>
+      <span class="reserva__nota"><i class="fa-solid fa-bolt"></i> Confirmación en menos de un minuto</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== VECINDAD ===================== -->
+<section class="vecindad">
+  <div class="vecindad__tarjeta" appRevelar>
+    <i class="fa-solid fa-envelope-open-text vecindad__icono"></i>
+    <div>
+      <span class="eyebrow"><i class="fa-regular fa-paper-plane"></i> La vecindad de Catorce</span>
+      <h2>Sé parte de la vecindad</h2>
+      <p>Crea tu cuenta para reservar en segundos y llevar el control de tus visitas.</p>
+    </div>
+    @if (auth.autenticado()) {
+      <a [routerLink]="auth.inicioSegunRol()" class="btn btn--oscuro btn--lg">Ir a mi cuenta</a>
+    } @else {
+      <a routerLink="/registro" class="btn btn--oscuro btn--lg">Crear mi cuenta</a>
+    }
+  </div>
+</section>

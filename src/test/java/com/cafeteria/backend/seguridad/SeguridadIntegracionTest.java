@@ -15,10 +15,15 @@ class SeguridadIntegracionTest {
  @Autowired MockMvc mvc;
  @Autowired com.fasterxml.jackson.databind.ObjectMapper json;
  @Autowired CuentaRepositorio cuentas;
- @Test void rutaEmpleadoResuelvePagina() throws Exception {
-  mvc.perform(get("/empleado/")).andExpect(status().isOk()).andExpect(forwardedUrl("/empleado/index.html"));
-  mvc.perform(get("/empleado")).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/empleado/"));
-  mvc.perform(get("/empleado/index.html")).andExpect(status().isOk());
+ @Test void rutasDelFrontendSirvenAngularYApiSigueEnJson() throws Exception {
+  // Las rutas de Angular (/admin/mesas, /reservar) devuelven index.html; /api nunca lo hace.
+  mvc.perform(get("/api/no-existe")).andExpect(status().isUnauthorized());
+  org.junit.jupiter.api.Assumptions.assumeTrue(new org.springframework.core.io.ClassPathResource("static/index.html").exists(),
+    "Compila el frontend (npm run build en frontend/) para probar las rutas de Angular");
+  mvc.perform(get("/reservar")).andExpect(status().isOk());
+  mvc.perform(get("/empleado/sala")).andExpect(status().isOk());
+  mvc.perform(get("/admin/mesas")).andExpect(status().isOk());
+  mvc.perform(get("/no-existe.js")).andExpect(status().isNotFound());
  }
  @Test void catalogoEsPublico() throws Exception {mvc.perform(get("/api/catalogo/productos")).andExpect(status().isOk());}
  @Test void catalogoAdministrativoRequiereLogin() throws Exception {mvc.perform(get("/api/productos")).andExpect(status().isUnauthorized());}
@@ -38,7 +43,7 @@ class SeguridadIntegracionTest {
  }
  @Test void claveAdminSeGuardaComoHash() {assertThat(cuentas.findByEmail("admin@cafecatorce.local").orElseThrow().getClaveHash()).startsWith("$2");}
  @Test void cuentaDesactivadaInvalidaJwt() throws Exception {
-  Cuenta c=cuentas.saveAndFlush(new Cuenta("Cliente prueba","cliente-desactivado@cafe.test",new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("Prueba.Cliente!2026"),"CLIENTE"));
+  Cuenta c=cuentas.saveAndFlush(new Cuenta("Cliente prueba","cliente-desactivado@cafe.test",new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder().encode("Prueba.Cliente!2026"),Rol.CLIENTE));
   var respuesta=mvc.perform(post("/api/auth/login").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(java.util.Map.of("email",c.getEmail(),"clave","Prueba.Cliente!2026")))).andExpect(status().isOk()).andReturn().getResponse();
   c.setActiva(false);cuentas.saveAndFlush(c);
   mvc.perform(get("/api/auth/me").cookie(respuesta.getCookie("CAFE_TOKEN"))).andExpect(status().isUnauthorized());
@@ -50,7 +55,7 @@ class SeguridadIntegracionTest {
  @Test void cookieInvalidaNoBloqueaCatalogoNiLogin() throws Exception {
   Cookie invalida = new Cookie("CAFE_TOKEN", "token-invalido");
   mvc.perform(get("/api/catalogo/productos").cookie(invalida)).andExpect(status().isOk());
-  mvc.perform(get("/admin/").cookie(invalida)).andExpect(status().isOk());
+  mvc.perform(get("/api/auth/sesion").cookie(invalida)).andExpect(status().isUnauthorized());
   mvc.perform(post("/api/auth/login").cookie(invalida).with(csrf()).contentType(MediaType.APPLICATION_JSON)
     .content(json.writeValueAsString(java.util.Map.of("email", "admin@cafecatorce.local", "clave", "Cafe14.Local!2026"))))
     .andExpect(status().isOk());

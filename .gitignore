@@ -42,3 +42,7 @@ Thumbs.db
 .env.*
 .bloop/
 .metals/
+
+### Frontend Angular ###
+# Salida de "npm run build" en frontend/: se genera en cada compilacion (y en Docker).
+/src/main/resources/static/

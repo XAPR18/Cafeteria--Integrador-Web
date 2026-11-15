@@ -1,0 +1,160 @@
+<section class="cabecera-pagina">
+  <div class="contenedor">
+    <span class="eyebrow">Reservas en línea</span>
+    <h1>Reserva tu mesa</h1>
+    <p>Elige el día, cuántos vienen y la hora. Cada reserva es por {{ agenda()?.duracionMinutos ?? 90 }} minutos.</p>
+  </div>
+</section>
+
+<section class="contenedor cuerpo">
+  @if (confirmada(); as r) {
+    <div class="tarjeta exito">
+      <div class="exito__icono"><i class="fa-solid fa-check"></i></div>
+      <h2>¡Listo, {{ r.clienteNombre.split(' ')[0] }}! Tu mesa está apartada.</h2>
+      <p class="texto-suave">Te esperamos. El equipo confirmará tu reserva en breve; puedes ver su estado en <a routerLink="/mi-cuenta">Mi cuenta</a>.</p>
+      <dl class="resumen-final">
+        <div><dt>Día</dt><dd>{{ fechaLarga(r.fecha) }}</dd></div>
+        <div><dt>Hora</dt><dd class="num">{{ r.horaInicio }} – {{ r.horaFin }}</dd></div>
+        <div><dt>Personas</dt><dd>{{ r.personas }}</dd></div>
+        <div><dt>Mesa</dt><dd>N.º {{ r.mesaNumero }} · {{ ZONAS[r.mesaZona] }}</dd></div>
+      </dl>
+      <div class="fila" style="justify-content: center">
+        <a routerLink="/mi-cuenta" class="btn btn--oscuro">Ver mis reservas</a>
+        <button type="button" class="btn btn--borde" (click)="nuevaReserva()">Hacer otra reserva</button>
+      </div>
+    </div>
+  } @else {
+    <form class="disposicion" [formGroup]="form" (ngSubmit)="confirmar()" novalidate>
+      <div class="pasos">
+        <!-- Paso 1 -->
+        <div class="tarjeta paso">
+          <h2><span class="paso__num">1</span> ¿Cuándo y cuántos?</h2>
+
+          <div class="campo">
+            <span class="etiqueta">Día</span>
+            <div class="dias" role="listbox" aria-label="Elige el día">
+              @for (d of dias; track d; let i = $index) {
+                <button type="button" class="dia" role="option" [class.activo]="valores().fecha === d" [attr.aria-selected]="valores().fecha === d"
+                        (click)="elegirFecha(d)">
+                  <small>{{ i === 0 ? 'Hoy' : i === 1 ? 'Mañana' : fechaCorta(d).split(' ')[0] }}</small>
+                  <strong class="num">{{ d.slice(8) }}</strong>
+                </button>
+              }
+            </div>
+            <label class="otra-fecha">Otra fecha:
+              <input type="date" class="control" [min]="hoy" [max]="maxFecha" [value]="valores().fecha" (change)="elegirFecha($any($event.target).value)">
+            </label>
+          </div>
+
+          <div class="fila-entre mt-2">
+            <div class="campo">
+              <label for="personas">Personas</label>
+              <div class="contador">
+                <button type="button" class="btn-icono" (click)="cambiarPersonas(-1)" [disabled]="(valores().personas ?? 1) <= 1" aria-label="Una persona menos"><i class="fa-solid fa-minus"></i></button>
+                <input id="personas" type="number" min="1" max="20" formControlName="personas" class="control num">
+                <button type="button" class="btn-icono" (click)="cambiarPersonas(1)" [disabled]="(valores().personas ?? 1) >= 20" aria-label="Una persona más"><i class="fa-solid fa-plus"></i></button>
+              </div>
+              <app-error-campo [control]="form.controls.personas" nombre="El número de personas" />
+            </div>
+            <div class="campo">
+              <span class="etiqueta">Zona preferida</span>
+              <div class="segmentado">
+                @for (z of zonas; track z.texto) {
+                  <button type="button" [class.activo]="valores().zona === z.valor" (click)="form.controls.zona.setValue(z.valor)">
+                    <i class="fa-solid" [class]="'fa-solid ' + z.icono"></i> {{ z.texto }}
+                  </button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="tarjeta paso">
+          <h2><span class="paso__num">2</span> Elige la hora</h2>
+          @if (agenda(); as a) {
+            <p class="texto-tenue">{{ fechaLarga(a.fecha) }} · atendemos de {{ a.apertura }} a {{ a.cierre }}</p>
+          }
+          @if (cargandoAgenda()) {
+            <div class="turnos mt-2">@for (i of [1,2,3,4,5,6,7,8]; track i) { <div class="esqueleto" style="height: 52px"></div> }</div>
+          } @else if (errorAgenda(); as e) {
+            <div class="alerta alerta--error mt-2"><i class="fa-solid fa-circle-exclamation"></i>{{ e }}</div>
+          } @else if (turnosPorMomento().length === 0) {
+            <div class="vacio"><i class="fa-regular fa-calendar-xmark"></i><h3>No quedan turnos este día</h3><p>Prueba con mañana u otra fecha.</p></div>
+          } @else {
+            @for (g of turnosPorMomento(); track g.titulo) {
+              <h3 class="momento"><i class="fa-solid" [class]="'fa-solid ' + g.icono"></i> {{ g.titulo }}</h3>
+              <div class="turnos">
+                @for (t of g.turnos; track t.hora) {
+                  <button type="button" class="turno" [class.activo]="valores().hora === t.hora" [disabled]="t.mesasLibres === 0"
+                          (click)="elegirHora(t.hora)" [attr.aria-pressed]="valores().hora === t.hora">
+                    <strong class="num">{{ t.hora }}</strong>
+                    <small>{{ t.mesasLibres === 0 ? 'Completo' : t.mesasLibres === 1 ? 'Última mesa' : t.mesasLibres + ' mesas' }}</small>
+                  </button>
+                }
+              </div>
+            }
+          }
+        </div>
+
+        <!-- Paso 3 -->
+        @if (valores().hora) {
+          <div class="tarjeta paso">
+            <h2><span class="paso__num">3</span> Tu mesa</h2>
+            @if (cargandoMesas()) {
+              <div class="esqueleto" style="height: 90px"></div>
+            } @else {
+              <div class="mesas">
+                <button type="button" class="mesa" [class.activo]="valores().mesaId === null" (click)="form.controls.mesaId.setValue(null)">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  <strong>La mejor disponible</strong><small>Te asignamos la más adecuada</small>
+                </button>
+                @for (m of mesas(); track m.id) {
+                  <button type="button" class="mesa" [class.activo]="valores().mesaId === m.id" (click)="form.controls.mesaId.setValue(m.id)">
+                    <span class="mesa__num num">{{ m.numero }}</span>
+                    <strong>{{ ZONAS[m.zona] }}</strong><small>Hasta {{ m.capacidad }} {{ m.capacidad === 1 ? 'persona' : 'personas' }}</small>
+                  </button>
+                }
+              </div>
+            }
+            <div class="campo mt-2">
+              <label for="nota">Nota para el equipo <span class="texto-tenue">(opcional)</span></label>
+              <textarea id="nota" class="control" formControlName="nota" maxlength="200" placeholder="Cumpleaños, silla para bebé, alergias…"></textarea>
+              <span class="ayuda">{{ (valores().nota ?? '').length }}/200</span>
+              <app-error-campo [control]="form.controls.nota" nombre="La nota" />
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Resumen lateral -->
+      <aside class="tarjeta resumen">
+        <h2>Tu reserva</h2>
+        <ul>
+          <li><i class="fa-regular fa-calendar"></i><span>{{ valores().fecha ? fechaLarga(valores().fecha!) : '—' }}</span></li>
+          <li><i class="fa-regular fa-clock"></i><span>{{ valores().hora ?? 'Elige una hora' }}</span></li>
+          <li><i class="fa-solid fa-user-group"></i><span>{{ valores().personas }} {{ valores().personas === 1 ? 'persona' : 'personas' }}</span></li>
+          <li><i class="fa-solid fa-chair"></i>
+            <span>@if (mesaElegida(); as m) { Mesa {{ m.numero }} · {{ ZONAS[m.zona] }} } @else { {{ valores().zona ? ZONAS[valores().zona!] : 'Cualquier zona' }} }</span></li>
+        </ul>
+
+        @if (error(); as e) {
+          <div class="alerta alerta--error"><i class="fa-solid fa-circle-exclamation"></i>{{ e }}</div>
+        }
+
+        @if (esPersonal()) {
+          <div class="alerta alerta--info"><i class="fa-solid fa-circle-info"></i>Las reservas se hacen con una cuenta de cliente. Tu cuenta es del personal.</div>
+        } @else if (auth.autenticado()) {
+          <button type="submit" class="btn btn--oro btn--bloque" [disabled]="!valores().hora || enviando()">
+            @if (enviando()) { <span class="girando"></span> Reservando… } @else { <i class="fa-solid fa-check"></i> Confirmar reserva }
+          </button>
+        } @else {
+          <p class="texto-tenue">Para confirmar necesitas una cuenta. Guardamos lo que elegiste.</p>
+          <button type="button" class="btn btn--oro btn--bloque" (click)="irAIngresar('login')" [disabled]="!valores().hora">Ingresar y confirmar</button>
+          <button type="button" class="btn btn--borde btn--bloque" (click)="irAIngresar('registro')">Crear cuenta</button>
+        }
+        <p class="texto-tenue centro">Puedes cancelar gratis desde Mi cuenta.</p>
+      </aside>
+    </form>
+  }
+</section>

@@ -1,0 +1,117 @@
+<div class="encabezado">
+  <div><h1>Productos</h1><p>Lo que aparece en la carta pública.</p></div>
+  <button type="button" class="btn btn--oro" (click)="abrir('nuevo')" [disabled]="secciones().length === 0"><i class="fa-solid fa-plus"></i> Nuevo producto</button>
+</div>
+
+<div class="kpis">
+  <div class="tarjeta kpi"><div class="kpi__icono"><i class="fa-solid fa-mug-hot"></i></div><div><strong class="num">{{ kpis().total }}</strong><span>Productos</span></div></div>
+  <div class="tarjeta kpi"><div class="kpi__icono" style="background: var(--ok-bg); color: var(--ok)"><i class="fa-solid fa-circle-check"></i></div><div><strong class="num">{{ kpis().disponibles }}</strong><span>Disponibles hoy</span></div></div>
+  <div class="tarjeta kpi"><div class="kpi__icono" style="background: var(--info-bg); color: var(--info)"><i class="fa-solid fa-coins"></i></div><div><strong class="num">{{ soles(kpis().promedio) }}</strong><span>Precio promedio</span></div></div>
+</div>
+
+<div class="tarjeta">
+  <div class="herramientas">
+    <label class="con-icono buscar"><i class="fa-solid fa-magnifying-glass"></i>
+      <input class="control" type="search" placeholder="Buscar producto o etiqueta…" [ngModel]="texto()" (ngModelChange)="texto.set($event)" aria-label="Buscar producto">
+    </label>
+    <select class="control" [ngModel]="filtroSeccion()" (ngModelChange)="filtroSeccion.set($event)" aria-label="Filtrar por sección">
+      <option [ngValue]="null">Todas las secciones</option>
+      @for (s of secciones(); track s.id) { <option [ngValue]="s.id">{{ s.nombre }}{{ s.activa ? '' : ' (inactiva)' }}</option> }
+    </select>
+  </div>
+
+  @if (cargando()) {
+    <div style="padding: 1.25rem; display: grid; gap: .6rem">@for (i of [1,2,3,4,5]; track i) { <div class="esqueleto" style="height: 52px"></div> }</div>
+  } @else if (error(); as e) {
+    <div style="padding: 1.25rem"><div class="alerta alerta--error"><i class="fa-solid fa-circle-exclamation"></i>{{ e }}</div></div>
+  } @else if (visibles().length === 0) {
+    <div class="vacio"><i class="fa-solid fa-mug-saucer"></i><h3>Sin productos</h3><p>No hay productos con ese filtro.</p></div>
+  } @else {
+    <div class="tabla-envoltura">
+      <table class="tabla">
+        <thead><tr><th>Producto</th><th>Sección</th><th>Precio</th><th>Etiqueta</th><th>Disponible hoy</th><th class="acciones">Acciones</th></tr></thead>
+        <tbody>
+          @for (p of visibles(); track p.id) {
+            <tr>
+              <td><div class="fila" style="flex-wrap: nowrap">
+                <img class="miniatura" [src]="p.imagenUrl || '/Image/Producto 1.jpg'" alt="" loading="lazy">
+                <div class="nombre-celda"><strong>{{ p.nombre }}</strong><small>#{{ p.id }}</small></div>
+              </div></td>
+              <td>{{ p.seccionNombre }}</td>
+              <td class="num precio-celda">{{ soles(p.precio) }}</td>
+              <td>@if (p.etiqueta) { <span class="insignia insignia--oro">{{ p.etiqueta }}</span> } @else { <span class="texto-tenue">—</span> }</td>
+              <td><label class="interruptor"><input type="checkbox" [checked]="p.disponible" [disabled]="procesando() === p.id" (change)="alternarDisponible(p)"
+                     [attr.aria-label]="'Disponible hoy: ' + p.nombre"> {{ p.disponible ? 'Sí' : 'No' }}</label></td>
+              <td class="acciones">
+                <button type="button" class="btn-icono" (click)="abrir(p)" title="Editar" [attr.aria-label]="'Editar ' + p.nombre"><i class="fa-solid fa-pen"></i></button>
+                <button type="button" class="btn-icono btn-icono--peligro" (click)="eliminar(p)" title="Eliminar" [attr.aria-label]="'Eliminar ' + p.nombre"><i class="fa-regular fa-trash-can"></i></button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (editando(); as e) {
+  <app-modal [titulo]="e === 'nuevo' ? 'Nuevo producto' : 'Editar producto'" [ancho]="true" (cerrar)="editando.set(null)">
+    <form [formGroup]="form" (ngSubmit)="guardar()" novalidate>
+      <div class="modal__cuerpo">
+        @if (errorForm(); as err) { <div class="alerta alerta--error"><i class="fa-solid fa-circle-exclamation"></i>{{ err }}</div> }
+        <div class="rejilla-form">
+          <div class="campo completo">
+            <label for="nombre">Nombre</label>
+            <input id="nombre" class="control" formControlName="nombre" maxlength="80" placeholder="Ej. Latte de vainilla">
+            <app-error-campo [control]="form.controls.nombre" nombre="El nombre" />
+          </div>
+          <div class="campo completo">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" class="control" formControlName="descripcion" maxlength="250" placeholder="Lo que hace especial a este producto"></textarea>
+            <app-error-campo [control]="form.controls.descripcion" nombre="La descripción" />
+          </div>
+          <div class="campo">
+            <label for="precio">Precio</label>
+            <div class="prefijo"><span>S/</span><input id="precio" class="control num" type="number" step="0.01" min="0.01" max="9999.99" formControlName="precio" placeholder="0.00"></div>
+            <app-error-campo [control]="form.controls.precio" nombre="El precio" />
+          </div>
+          <div class="campo">
+            <label for="seccion">Sección</label>
+            <select id="seccion" class="control" formControlName="seccionId">
+              @for (s of secciones(); track s.id) { <option [ngValue]="s.id">{{ s.nombre }}</option> }
+            </select>
+            <app-error-campo [control]="form.controls.seccionId" nombre="La sección" />
+          </div>
+          <div class="campo">
+            <label for="etiqueta">Etiqueta destacada <span class="texto-tenue">(opcional)</span></label>
+            <input id="etiqueta" class="control" formControlName="etiqueta" maxlength="30" placeholder="FAVORITO, VEGANO…">
+            <app-error-campo [control]="form.controls.etiqueta" nombre="La etiqueta" />
+          </div>
+          <div class="campo" style="align-content: end">
+            <label class="interruptor"><input type="checkbox" formControlName="disponible"> Disponible hoy</label>
+          </div>
+          <div class="campo completo">
+            <span class="etiqueta">Imagen</span>
+            <div class="galeria">
+              @for (img of imagenes; track img) {
+                <button type="button" [class.activo]="imagenActual() === img" (click)="form.controls.imagenUrl.setValue(img)" [attr.aria-label]="'Usar ' + img">
+                  <img [src]="img" alt="" loading="lazy">
+                </button>
+              }
+            </div>
+            <input class="control" formControlName="imagenUrl" placeholder="…o pega la URL de una imagen (https://…)" aria-label="URL de imagen">
+            <app-error-campo [control]="form.controls.imagenUrl" nombre="La URL" />
+          </div>
+        </div>
+        @if (imagenActual()) {
+          <div class="vista"><img [src]="imagenActual()" alt="Vista previa"><div><strong>{{ form.controls.nombre.value || 'Nombre del producto' }}</strong>
+            <p class="texto-suave">{{ form.controls.precio.value ? soles(+form.controls.precio.value) : 'S/ —' }}</p></div></div>
+        }
+      </div>
+      <div class="modal__pie">
+        <button type="button" class="btn btn--fantasma" (click)="editando.set(null)">Cancelar</button>
+        <button type="submit" class="btn btn--oscuro" [disabled]="guardando()">@if (guardando()) { <span class="girando"></span> } Guardar producto</button>
+      </div>
+    </form>
+  </app-modal>
+}

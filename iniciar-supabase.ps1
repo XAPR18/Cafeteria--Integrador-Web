@@ -33,22 +33,25 @@ try {
         Write-Host 'Se genero una clave JWT temporal: las sesiones anteriores se invalidan al reiniciar con otra clave.'
     }
 
-    if ([string]::IsNullOrWhiteSpace($env:ADMIN_EMAIL)) {
-        $env:ADMIN_EMAIL = Read-Host 'Correo del administrador inicial'
-    }
-    if ([string]::IsNullOrWhiteSpace($env:ADMIN_PASSWORD)) {
-        $env:ADMIN_PASSWORD = LeerSecreto 'Contrasena del administrador inicial (minimo 12 caracteres)'
-    }
-    if ($env:ADMIN_EMAIL -notmatch '^[^\s@]+@[^\s@]+\.[^\s@]+$') { throw 'Introduce un correo valido.' }
-    if ($env:ADMIN_PASSWORD.Length -lt 12 -or [Text.Encoding]::UTF8.GetByteCount($env:ADMIN_PASSWORD) -gt 72) {
-        throw 'La contrasena administrativa debe tener al menos 12 caracteres y no superar 72 bytes.'
-    }
+    # ADMIN_EMAIL y ADMIN_PASSWORD solo hacen falta si la base no tiene ninguna cuenta.
+    # La base de Supabase ya tiene administrador, asi que no se piden. Para una base vacia,
+    # definirlas antes de ejecutar este script: $env:ADMIN_EMAIL = '...'; $env:ADMIN_PASSWORD = '...'
 
     if (Test-Path -LiteralPath 'C:\Program Files\Java\jdk-21.0.12\bin\java.exe') {
         $env:JAVA_HOME = 'C:\Program Files\Java\jdk-21.0.12'
     }
+    # Compila el frontend Angular dentro de src/main/resources/static para que Spring Boot lo sirva.
+    $env:NG_CLI_ANALYTICS = 'false'
+    Write-Host 'Compilando el frontend Angular...'
+    Push-Location (Join-Path $PSScriptRoot 'frontend')
+    try {
+        if (-not (Test-Path -LiteralPath 'node_modules')) { & npm ci --no-audit --no-fund; if ($LASTEXITCODE -ne 0) { throw 'npm ci fallo' } }
+        & npx ng build
+        if ($LASTEXITCODE -ne 0) { throw 'No se pudo compilar el frontend Angular. Revisa el error mostrado arriba.' }
+    } finally { Pop-Location }
+
     Write-Host 'Iniciando Spring Boot con PostgreSQL/Supabase. Las migraciones crearan el esquema cafe.'
-    Write-Host 'El administrador inicial se crea solo si todavia no existen cuentas.'
+    Write-Host 'Al terminar de iniciar: http://localhost:8080/ (carta), /admin/ (panel), /swagger-ui.html (API).'
     & .\mvnw.cmd spring-boot:run
     if ($LASTEXITCODE -ne 0) { throw 'El servidor no pudo iniciarse. Revisa el error de conexion mostrado arriba.' }
 }

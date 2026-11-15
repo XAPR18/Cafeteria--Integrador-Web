@@ -1,0 +1,24 @@
+.acceso { min-height: calc(100vh - var(--nav-h)); display: grid; grid-template-columns: 1fr 1fr; }
+.acceso__arte {
+  position: relative; color: var(--crema); padding: clamp(2rem, 5vw, 4rem); display: flex; flex-direction: column; justify-content: flex-end;
+  background: linear-gradient(180deg, rgba(20,15,11,.2), rgba(20,15,11,.92)),
+    url("https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=70") center / cover;
+}
+.acceso__arte h2 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); max-width: 16ch; }
+.acceso__arte p { color: rgba(247,241,231,.75); margin-top: .8rem; max-width: 42ch; }
+.acceso__arte ul { margin-top: 1.5rem; display: grid; gap: .6rem; }
+.acceso__arte li { display: flex; gap: .6rem; align-items: center; font-size: .92rem; }
+.acceso__arte li i { color: var(--oro); }
+.acceso__form { display: grid; place-items: center; padding: clamp(2rem, 5vw, 4rem) var(--pad); background: var(--crema); }
+.acceso__caja { width: min(420px, 100%); display: grid; gap: 1.1rem; }
+.acceso__caja h1 { font-size: 2rem; }
+.acceso__caja .sub { color: var(--tinta-suave); margin-top: -.6rem; }
+.ojo { position: absolute; right: .4rem; top: 50%; transform: translateY(-50%); }
+.relativo { position: relative; }
+.relativo .control { padding-right: 2.8rem; }
+.pie-form { text-align: center; font-size: .9rem; color: var(--tinta-suave); }
+.pie-form a { color: var(--oro-2); font-weight: 600; }
+.pie-form a:hover { text-decoration: underline; }
+.fuerza { height: 6px; border-radius: 6px; background: var(--neutro-bg); overflow: hidden; }
+.fuerza span { display: block; height: 100%; border-radius: 6px; transition: width .2s, background .2s; }
+@media (max-width: 860px) { .acceso { grid-template-columns: 1fr; } .acceso__arte { min-height: 220px; } .acceso__arte ul { display: none; } }

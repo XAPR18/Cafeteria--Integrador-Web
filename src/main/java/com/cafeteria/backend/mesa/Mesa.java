@@ -10,12 +10,16 @@ public class Mesa {
     private Long id;
     @Column(nullable = false, unique = true)
     private Integer numero;
+    @Column(nullable = false)
     private Integer capacidad;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private TipoMesa tipo;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private ZonaMesa zona;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
     private EstadoMesa estado;
 
     public Mesa() {

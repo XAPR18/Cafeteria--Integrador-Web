@@ -55,6 +55,14 @@ public class MesaControlador {
         return MesaRespuesta.desde(servicio.actualizar(id, solicitud));
     }
 
+    public record CambioEstado(@jakarta.validation.constraints.NotNull(message = "El estado es obligatorio") EstadoMesa estado) {}
+
+    @org.springframework.web.bind.annotation.PatchMapping("/{id}/estado")
+    @Operation(summary = "ADMIN/EMPLEADO: cambiar el estado de una mesa en sala")
+    public MesaRespuesta cambiarEstado(@PathVariable Long id, @Valid @RequestBody CambioEstado cambio) {
+        return MesaRespuesta.desde(servicio.cambiarEstado(id, cambio.estado()));
+    }
+
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Eliminar una mesa")

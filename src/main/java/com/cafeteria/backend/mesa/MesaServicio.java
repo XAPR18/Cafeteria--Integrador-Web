@@ -48,6 +48,13 @@ public class MesaServicio {
         return repositorio.guardar(mesa);
     }
 
+    /** Cambio rapido de estado en sala (ADMIN o EMPLEADO): ocupar, liberar o marcar como reservada. */
+    public Mesa cambiarEstado(Long id, EstadoMesa estado) {
+        Mesa mesa = obtener(id);
+        mesa.setEstado(estado);
+        return repositorio.guardar(mesa);
+    }
+
     public void eliminar(Long id) {
         if (!repositorio.existePorId(id)) {
             throw RecursoNoEncontradoException.de("la mesa", id);

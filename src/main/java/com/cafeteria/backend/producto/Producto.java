@@ -10,18 +10,19 @@ public class Producto {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false, length = 80)
     private String nombre;
+    @Column(length = 250)
     private String descripcion;
     @Column(nullable = false, precision = 6, scale = 2)
     private BigDecimal precio;
     @Column(name = "seccion_id", nullable = false)
     private Long seccionId;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="seccion_id", insertable=false, updatable=false)
-    private com.cafeteria.backend.seccion.Seccion seccion;
+    @Column(nullable = false)
     private boolean disponible;
-    @Column(length=300)
+    @Column(length = 300)
     private String imagenUrl;
+    @Column(length = 30)
     private String etiqueta;
 
     public Producto() {
