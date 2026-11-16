@@ -118,6 +118,7 @@ public class ReservaServicio {
         ReservaRespuesta creada = ReservaRespuesta.desde(reservas.saveAndFlush(new Reserva(cliente, mesa, s.fecha(), s.hora(), fin,
                 s.personas(), nota, LocalDateTime.now(reloj), nuevoCodigo())));
         eventos.publishEvent(plantillas.reserva(creada, TipoReserva.CREADA));
+        eventos.publishEvent(new AvisosPersonal.AvisoReserva(AvisosPersonal.Tipo.NUEVA, creada));
         return creada;
     }
 
@@ -138,7 +139,9 @@ public class ReservaServicio {
             throw new ReglaNegocioException("La hora de la reserva ya paso; comunicate con el local");
         }
         r.setEstado(EstadoReserva.CANCELADA);
-        return ReservaRespuesta.desde(r);
+        ReservaRespuesta cancelada = ReservaRespuesta.desde(r);
+        eventos.publishEvent(new AvisosPersonal.AvisoReserva(AvisosPersonal.Tipo.CANCELADA_POR_CLIENTE, cancelada));
+        return cancelada;
     }
 
     // ---------------------------------------------------------------- personal

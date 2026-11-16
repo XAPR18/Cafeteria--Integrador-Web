@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { AlertasReservasService } from '../../core/alertas-reservas';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../core/api.service';
@@ -129,6 +130,15 @@ export class ResumenPagina {
     ]).subscribe({
       next: ([r, m, p, c]) => { this.reservas.set(r); this.mesas.set(m); this.productos.set(p); this.cuentas.set(c); this.cargando.set(false); },
       error: e => { this.error.set(mensajeDeError(e)); this.cargando.set(false); },
+    });
+    // Con cada aviso en vivo, actualiza las reservas de la semana sin recargar todo.
+    const alertas = inject(AlertasReservasService);
+    let previa = alertas.version();
+    effect(() => {
+      const v = alertas.version();
+      if (v === previa) return;
+      previa = v;
+      untracked(() => this.api.reservas.listar(this.hoy, sumarDias(this.hoy, 6)).subscribe(r => this.reservas.set(r)));
     });
   }
 }

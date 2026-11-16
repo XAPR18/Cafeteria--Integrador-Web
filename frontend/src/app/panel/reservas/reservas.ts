@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import { AlertasReservasService } from '../../core/alertas-reservas';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../core/api.service';
 import { AuthService } from '../../core/auth.service';
@@ -64,7 +65,7 @@ const ACCIONES: Record<EstadoReserva, Accion[]> = {
           <option value="TODAS">Todos los estados</option>
           @for (e of estados; track e) { <option [value]="e">{{ ESTADOS[e].texto }}</option> }
         </select>
-        <button type="button" class="btn btn--borde btn--sm" (click)="cargar()" [disabled]="cargando()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
+        <button type="button" class="btn btn--borde btn--sm" (click)="cargar(true)" [disabled]="cargando()"><i class="fa-solid fa-rotate"></i> Actualizar</button>
       </div>
 
       @if (cargando()) {
@@ -124,6 +125,7 @@ export class ReservasPagina {
   protected readonly fechaCorta = fechaCorta;
   protected readonly hoy = fechaIso();
 
+  readonly fechaRuta = input<string | undefined>(undefined, { alias: 'fecha' });
   protected readonly fecha = signal(this.hoy);
   protected readonly rango = signal<'dia' | 'semana'>('dia');
   protected readonly hasta = computed(() => this.rango() === 'dia' ? this.fecha() : sumarDias(this.fecha(), 6));
@@ -144,15 +146,34 @@ export class ReservasPagina {
       && (!q || `${r.clienteNombre} ${r.clienteEmail} mesa ${r.mesaNumero} ${r.codigo}`.toLowerCase().includes(q)));
   });
 
-  constructor() { this.cargar(); }
+  constructor() {
+    // ?fecha=AAAA-MM-DD (por ejemplo, desde "Ver reservas" de una alerta) abre ese día; si no, hoy.
+    effect(() => {
+      const f = this.fechaRuta();
+      untracked(() => {
+        this.fecha.set(f && /^\d{4}-\d{2}-\d{2}$/.test(f) ? f : this.hoy);
+        this.rango.set('dia');
+        this.cargar();
+      });
+    });
+    // Cada aviso en vivo (reserva nueva o cancelada) recarga la lista sin parpadeo y la da por vista.
+    const alertas = inject(AlertasReservasService);
+    let previa = alertas.version();
+    effect(() => {
+      const v = alertas.version();
+      if (v === previa) return;
+      previa = v;
+      untracked(() => { this.cargar(false); alertas.marcarVistas(); });
+    });
+  }
 
   protected contar(e: EstadoReserva) { return this.reservas().filter(r => r.estado === e).length; }
   protected irA(f: string) { if (f) { this.fecha.set(f); this.cargar(); } }
   protected mover(dir: number) { this.irA(sumarDias(this.fecha(), dir * (this.rango() === 'dia' ? 1 : 7))); }
   protected cambiarRango(r: 'dia' | 'semana') { this.rango.set(r); this.cargar(); }
 
-  cargar() {
-    this.cargando.set(true);
+  cargar(conEsqueleto = true) {
+    if (conEsqueleto) this.cargando.set(true);
     this.error.set(null);
     this.api.reservas.listar(this.fecha(), this.hasta()).subscribe({
       next: r => { this.reservas.set(r); this.cargando.set(false); },

@@ -93,6 +93,8 @@ public class ConfiguracionSeguridad {
                 .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()));
 
         http.authorizeHttpRequests(a -> a
+                // La respuesta de un flujo SSE ya autorizado continua en un despacho ASYNC: no volver a evaluarla.
+                .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ASYNC, jakarta.servlet.DispatcherType.ERROR).permitAll()
                 .requestMatchers(RUTAS_AUTH_PUBLICAS.toArray(String[]::new)).permitAll()
                 .requestMatchers("/api/auth/sesion").permitAll()
                 .requestMatchers("/api/auth/me", "/api/auth/verificacion", "/api/auth/verificacion/reenviar").authenticated()
@@ -102,7 +104,7 @@ public class ConfiguracionSeguridad {
                 .requestMatchers(HttpMethod.POST, "/api/reservas").hasRole(Rol.CLIENTE.name())
                 .requestMatchers(HttpMethod.GET, "/api/reservas/mias").hasRole(Rol.CLIENTE.name())
                 .requestMatchers(HttpMethod.PATCH, "/api/reservas/*/cancelar").hasRole(Rol.CLIENTE.name())
-                .requestMatchers(HttpMethod.GET, "/api/reservas").hasAnyRole(Rol.ADMIN.name(), Rol.EMPLEADO.name())
+                .requestMatchers(HttpMethod.GET, "/api/reservas", "/api/reservas/avisos").hasAnyRole(Rol.ADMIN.name(), Rol.EMPLEADO.name())
                 .requestMatchers(HttpMethod.PATCH, "/api/reservas/*/estado").hasAnyRole(Rol.ADMIN.name(), Rol.EMPLEADO.name())
                 .requestMatchers(HttpMethod.GET, "/api/mesas/**").hasAnyRole(Rol.ADMIN.name(), Rol.EMPLEADO.name())
                 .requestMatchers(HttpMethod.PATCH, "/api/mesas/*/estado").hasAnyRole(Rol.ADMIN.name(), Rol.EMPLEADO.name())
