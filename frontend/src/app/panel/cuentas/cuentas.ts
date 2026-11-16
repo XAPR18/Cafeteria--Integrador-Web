@@ -50,7 +50,7 @@ import { maximo72Bytes } from '../../compartido/validadores';
               @for (c of visibles(); track c.id) {
                 <tr>
                   <td><strong>{{ c.nombre }}</strong>@if (c.email === miCorreo()) { <span class="texto-tenue"> (tú)</span> }</td>
-                  <td>{{ c.email }}</td>
+                  <td>{{ c.email }}@if (c.rol === 'CLIENTE') { <span class="insignia" [class.insignia--ok]="c.verificado" [class.insignia--aviso]="!c.verificado" style="margin-left:.4rem">{{ c.verificado ? 'Verificado' : 'Sin verificar' }}</span> }@if (c.telefono) { <small class="texto-tenue" style="display:block">{{ c.telefono }}</small> }</td>
                   <td><span class="insignia" [class.insignia--oro]="c.rol === 'ADMIN'" [class.insignia--info]="c.rol === 'EMPLEADO'" [class.insignia--neutro]="c.rol === 'CLIENTE'">{{ ROLES[c.rol] }}</span></td>
                   <td><span class="insignia" [class.insignia--ok]="c.activa" [class.insignia--error]="!c.activa">{{ c.activa ? 'Activo' : 'Bloqueado' }}</span></td>
                   <td class="acciones">

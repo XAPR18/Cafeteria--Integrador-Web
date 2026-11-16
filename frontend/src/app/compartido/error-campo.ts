@@ -42,7 +42,7 @@ export class ErrorCampoComponent {
     if (e['slug']) return 'Solo minúsculas, números y guiones (ej. cafes-frios).';
     if (e['noCoincide']) return 'Las contraseñas no coinciden.';
     if (e['bytes']) return 'La contraseña es demasiado larga (máximo 72 bytes).';
-    if (e['pattern']) return 'El formato no es válido.';
+    if (e['pattern']) return this.nombre() === 'El celular' ? 'Escribe un celular peruano, por ejemplo 987 654 321.' : 'El formato no es válido.';
     return 'Revisa este campo.';
   });
 }

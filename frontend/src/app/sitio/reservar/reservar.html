@@ -11,7 +11,11 @@
     <div class="tarjeta exito">
       <div class="exito__icono"><i class="fa-solid fa-check"></i></div>
       <h2>¡Listo, {{ r.clienteNombre.split(' ')[0] }}! Tu mesa está apartada.</h2>
-      <p class="texto-suave">Te esperamos. El equipo confirmará tu reserva en breve; puedes ver su estado en <a routerLink="/mi-cuenta">Mi cuenta</a>.</p>
+      <p class="texto-suave">Te enviamos los detalles a <strong>{{ r.clienteEmail }}</strong>. El equipo confirmará tu reserva en breve; puedes ver su estado en <a routerLink="/mi-cuenta">Mi cuenta</a>.</p>
+      <div class="qr">
+        <img [src]="'/api/catalogo/reservas/' + r.codigo + '/qr.png'" width="160" height="160" alt="Código QR de tu reserva">
+        <div><strong class="qr__codigo">{{ r.codigo }}</strong><span>Muestra este QR o el código al llegar. Tolerancia: 15 minutos.</span></div>
+      </div>
       <dl class="resumen-final">
         <div><dt>Día</dt><dd>{{ fechaLarga(r.fecha) }}</dd></div>
         <div><dt>Hora</dt><dd class="num">{{ r.horaInicio }} – {{ r.horaFin }}</dd></div>
@@ -142,7 +146,10 @@
           <div class="alerta alerta--error"><i class="fa-solid fa-circle-exclamation"></i>{{ e }}</div>
         }
 
-        @if (esPersonal()) {
+        @if (auth.pendienteDeVerificar()) {
+          <div class="alerta alerta--aviso"><i class="fa-solid fa-envelope-circle-check"></i>Para reservar, primero confirma tu correo con el código que te enviamos.</div>
+          <a routerLink="/verificar" [queryParams]="{ volver: '/reservar' }" class="btn btn--oro btn--bloque"><i class="fa-solid fa-shield-halved"></i> Verificar mi correo</a>
+        } @else if (esPersonal()) {
           <div class="alerta alerta--info"><i class="fa-solid fa-circle-info"></i>Las reservas se hacen con una cuenta de cliente. Tu cuenta es del personal.</div>
         } @else if (auth.autenticado()) {
           <button type="submit" class="btn btn--oro btn--bloque" [disabled]="!valores().hora || enviando()">

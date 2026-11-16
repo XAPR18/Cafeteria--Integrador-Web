@@ -59,3 +59,8 @@
 .resumen-final div { padding: .8rem 1rem; border-radius: 12px; background: var(--crema-2); border: 1px solid var(--linea); }
 .resumen-final dt { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--tinta-tenue); }
 .resumen-final dd { font-weight: 600; margin-top: .15rem; }
+.qr { display: flex; align-items: center; gap: 1.2rem; padding: 1rem 1.25rem; border-radius: 16px; background: var(--crema-2); border: 1px dashed var(--linea-fuerte); text-align: left; flex-wrap: wrap; justify-content: center; }
+.qr img { border-radius: 12px; background: #fff; padding: 6px; box-shadow: var(--sombra-sm); }
+.qr div { display: grid; gap: .3rem; max-width: 240px; }
+.qr__codigo { font-family: "Courier New", monospace; font-size: 1.4rem; letter-spacing: .15em; }
+.qr span { font-size: .85rem; color: var(--tinta-suave); }

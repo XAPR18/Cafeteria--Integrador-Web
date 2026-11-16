@@ -46,12 +46,13 @@ public final class ReservaDtos {
             Integer mesaCapacidad,
             String clienteNombre,
             String clienteEmail,
-            LocalDateTime creadoEn) {
+            LocalDateTime creadoEn,
+            String codigo) {
         public static ReservaRespuesta desde(Reserva r) {
             return new ReservaRespuesta(r.getId(), r.getFecha(), r.getHoraInicio(), r.getHoraFin(),
                     r.getPersonas(), r.getEstado(), r.getNota(),
                     r.getMesa().getId(), r.getMesa().getNumero(), r.getMesa().getZona(), r.getMesa().getCapacidad(),
-                    r.getCuenta().getNombre(), r.getCuenta().getEmail(), r.getCreadoEn());
+                    r.getCuenta().getNombre(), r.getCuenta().getEmail(), r.getCreadoEn(), r.getCodigo());
         }
     }
 

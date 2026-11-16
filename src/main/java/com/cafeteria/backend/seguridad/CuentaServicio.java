@@ -14,13 +14,16 @@ public class CuentaServicio {
     private final CuentaRepositorio cuentas;
     private final PasswordEncoder claves;
     private final LimitadorIntentosLogin limitador;
+    private final VerificacionServicio verificacion;
     /** Hash señuelo: iguala el tiempo de respuesta cuando el correo no existe (evita enumerar cuentas). */
     private final String hashSenuelo;
 
-    public CuentaServicio(CuentaRepositorio cuentas, PasswordEncoder claves, LimitadorIntentosLogin limitador) {
+    public CuentaServicio(CuentaRepositorio cuentas, PasswordEncoder claves, LimitadorIntentosLogin limitador,
+                          VerificacionServicio verificacion) {
         this.cuentas = cuentas;
         this.claves = claves;
         this.limitador = limitador;
+        this.verificacion = verificacion;
         this.hashSenuelo = claves.encode("senuelo-" + java.util.UUID.randomUUID());
     }
 
@@ -57,6 +60,27 @@ public class CuentaServicio {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "La contraseña supera el limite de 72 bytes");
         }
         return cuentas.saveAndFlush(new Cuenta(nombre.trim(), correo, claves.encode(clave), rol));
+    }
+
+    /**
+     * Registro público: la cuenta nace CLIENTE y sin verificar, y se envía el código al correo.
+     * Hasta verificarlo puede iniciar sesión, pero no reservar.
+     */
+    public Cuenta registrarCliente(String nombre, String email, String clave, String telefono) {
+        Cuenta cuenta = crear(nombre, email, clave, Rol.CLIENTE);
+        cuenta.requerirVerificacion();
+        cuenta.setTelefono(normalizarTelefono(telefono));
+        verificacion.enviarCodigo(cuenta);
+        return cuenta;
+    }
+
+    /** "987 654 321" o "+51987654321" -> "+51987654321". Vacío -> null. */
+    static String normalizarTelefono(String telefono) {
+        if (telefono == null || telefono.isBlank()) return null;
+        String d = telefono.replaceAll("\\D", "");
+        if (d.length() == 9 && d.startsWith("9")) return "+51" + d;
+        if (d.length() == 11 && d.startsWith("519")) return "+" + d;
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Escribe un celular peruano válido, por ejemplo 987 654 321");
     }
 
     public Cuenta cambiarEstado(Long id, boolean activa, String operador) {

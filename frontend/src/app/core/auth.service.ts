@@ -38,10 +38,24 @@ export class AuthService {
     return perfil;
   }
 
-  async registrar(nombre: string, email: string, clave: string): Promise<Perfil> {
-    await firstValueFrom(this.http.post<Perfil>('/api/auth/registro', { nombre, email, clave }));
+  async registrar(nombre: string, email: string, clave: string, telefono: string | null): Promise<Perfil> {
+    await firstValueFrom(this.http.post<Perfil>('/api/auth/registro', { nombre, email, clave, telefono }));
     return this.login(email, clave);
   }
+
+  /** Confirma el correo con el código de 6 dígitos que llegó a la bandeja de entrada. */
+  async verificar(codigo: string): Promise<Perfil> {
+    const perfil = await firstValueFrom(this.http.post<Perfil>('/api/auth/verificacion', { codigo }));
+    this.usuario.set(perfil);
+    return perfil;
+  }
+
+  reenviarCodigo(): Promise<unknown> {
+    return firstValueFrom(this.http.post('/api/auth/verificacion/reenviar', {}));
+  }
+
+  /** Cliente que aún no confirmó su correo: puede navegar, pero no reservar. */
+  readonly pendienteDeVerificar = computed(() => this.usuario()?.rol === 'CLIENTE' && !this.usuario()?.verificado);
 
   async salir(): Promise<void> {
     await firstValueFrom(this.http.post('/api/auth/logout', {})).catch(() => undefined);

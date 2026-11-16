@@ -26,6 +26,13 @@ import { ConfirmacionService } from '../../compartido/confirmacion';
     </section>
 
     <section class="contenedor cuerpo">
+      @if (auth.pendienteDeVerificar()) {
+        <div class="alerta alerta--aviso verificar">
+          <i class="fa-solid fa-envelope-circle-check"></i>
+          <div><strong>Confirma tu correo para poder reservar.</strong> Te enviamos un código de 6 dígitos a {{ auth.usuario()?.email }}.</div>
+          <a routerLink="/verificar" class="btn btn--oscuro btn--sm">Verificar ahora</a>
+        </div>
+      }
       <div class="kpis">
         <div class="tarjeta kpi"><strong class="num">{{ proximas().length }}</strong><span>Próximas reservas</span></div>
         <div class="tarjeta kpi"><strong class="num">{{ visitas() }}</strong><span>Visitas completadas</span></div>
@@ -52,6 +59,13 @@ import { ConfirmacionService } from '../../compartido/confirmacion';
                 <h3>{{ fechaLarga(r.fecha) }} · <span class="num">{{ r.horaInicio }}–{{ r.horaFin }}</span></h3>
                 <p class="texto-suave">Mesa {{ r.mesaNumero }} · {{ ZONAS[r.mesaZona] }} · {{ r.personas }} {{ r.personas === 1 ? 'persona' : 'personas' }}</p>
                 @if (r.nota) { <p class="texto-tenue"><i class="fa-regular fa-note-sticky"></i> {{ r.nota }}</p> }
+                <button type="button" class="ver-qr" (click)="qrAbierto.set(qrAbierto() === r.id ? null : r.id)">
+                  <i class="fa-solid fa-qrcode"></i> {{ r.codigo }} · {{ qrAbierto() === r.id ? 'Ocultar QR' : 'Ver QR' }}
+                </button>
+                @if (qrAbierto() === r.id) {
+                  <div class="qr"><img [src]="'/api/catalogo/reservas/' + r.codigo + '/qr.png'" width="150" height="150" alt="QR de la reserva">
+                    <span>Muéstralo al llegar. Guardamos la mesa hasta 15 minutos después de las {{ r.horaInicio }}.</span></div>
+                }
               </div>
               <div class="reserva__acciones">
                 <span class="insignia" [class]="'insignia ' + ESTADOS[r.estado].clase">{{ ESTADOS[r.estado].texto }}</span>
@@ -101,6 +115,13 @@ import { ConfirmacionService } from '../../compartido/confirmacion';
     .reserva__info { flex: 1; min-width: 200px; }
     .reserva__info h3 { font-size: 1.05rem; }
     .reserva__acciones { display: flex; gap: .6rem; align-items: center; }
+    .verificar { align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .verificar div { flex: 1; min-width: 220px; }
+    .ver-qr { margin-top: .4rem; font-size: .82rem; font-weight: 600; color: var(--oro-2); font-family: "Courier New", monospace; }
+    .ver-qr:hover { text-decoration: underline; }
+    .qr { display: flex; align-items: center; gap: 1rem; margin-top: .6rem; padding: .8rem; border-radius: 12px; background: var(--crema-2); border: 1px dashed var(--linea-fuerte); }
+    .qr img { border-radius: 10px; background: #fff; padding: 4px; }
+    .qr span { font-size: .85rem; color: var(--tinta-suave); max-width: 260px; }
   `,
 })
 export class MiCuentaPagina {
@@ -116,6 +137,7 @@ export class MiCuentaPagina {
   protected readonly cargando = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly procesando = signal<number | null>(null);
+  protected readonly qrAbierto = signal<number | null>(null);
 
   private readonly hoy = fechaIso();
   protected readonly proximas = computed(() => this.reservas()

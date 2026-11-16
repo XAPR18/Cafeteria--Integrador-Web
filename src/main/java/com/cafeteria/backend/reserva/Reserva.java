@@ -54,11 +54,16 @@ public class Reserva {
     @Column(name = "creado_en", nullable = false)
     private LocalDateTime creadoEn;
 
+    /** Código que el cliente muestra al llegar (texto y QR), p. ej. CC14-7KQ2MX. */
+    @Column(nullable = false, unique = true, length = 20)
+    private String codigo;
+
     protected Reserva() {
     }
 
     public Reserva(Cuenta cuenta, Mesa mesa, LocalDate fecha, LocalTime horaInicio, LocalTime horaFin,
-                   int personas, String nota, LocalDateTime creadoEn) {
+                   int personas, String nota, LocalDateTime creadoEn, String codigo) {
+        this.codigo = codigo;
         this.cuenta = cuenta;
         this.mesa = mesa;
         this.fecha = fecha;
@@ -80,5 +85,6 @@ public class Reserva {
     public EstadoReserva getEstado() { return estado; }
     public String getNota() { return nota; }
     public LocalDateTime getCreadoEn() { return creadoEn; }
+    public String getCodigo() { return codigo; }
     public void setEstado(EstadoReserva estado) { this.estado = estado; }
 }

@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,10 +37,12 @@ public class AuthControlador {
     static final Duration DURACION_SESION = Duration.ofMinutes(30);
 
     private final CuentaServicio cuentas;
+    private final VerificacionServicio verificacion;
     private final JwtEncoder jwt;
 
-    public AuthControlador(CuentaServicio cuentas, JwtEncoder jwt) {
+    public AuthControlador(CuentaServicio cuentas, VerificacionServicio verificacion, JwtEncoder jwt) {
         this.cuentas = cuentas;
+        this.verificacion = verificacion;
         this.jwt = jwt;
     }
 
@@ -48,12 +51,17 @@ public class AuthControlador {
     public record Registro(
             @NotBlank @Size(max = 80) String nombre,
             @Email @NotBlank @Size(max = 160) String email,
-            @NotBlank @Size(min = 12, max = 72) String clave) {}
+            @NotBlank @Size(min = 12, max = 72) String clave,
+            @jakarta.validation.constraints.Pattern(regexp = "^$|^[+0-9 -]{9,16}$", message = "Escribe un celular válido, por ejemplo 987 654 321")
+            String telefono) {}
 
-    public record Perfil(Long id, String nombre, String email, String rol, boolean activa) {}
+    public record Codigo(@NotBlank(message = "Escribe el código que te enviamos") @Size(max = 12) String codigo) {}
+
+    public record Perfil(Long id, String nombre, String email, String rol, boolean activa, boolean verificado, String telefono) {}
 
     static Perfil perfil(Cuenta c) {
-        return new Perfil(c.getId(), c.getNombre(), c.getEmail(), c.getRol().name(), c.isActiva());
+        return new Perfil(c.getId(), c.getNombre(), c.getEmail(), c.getRol().name(), c.isActiva(),
+                c.isEmailVerificado(), c.getTelefono());
     }
 
     @GetMapping("/csrf")
@@ -82,10 +90,32 @@ public class AuthControlador {
     }
 
     @PostMapping("/registro")
-    @Operation(summary = "Registro publico: siempre crea una cuenta CLIENTE")
+    @Operation(summary = "Registro publico: crea una cuenta CLIENTE sin verificar y envia un codigo al correo")
     public ResponseEntity<Perfil> registro(@Valid @RequestBody Registro s) {
-        Cuenta cuenta = cuentas.crear(s.nombre(), s.email(), s.clave(), Rol.CLIENTE);
+        Cuenta cuenta = cuentas.registrarCliente(s.nombre(), s.email(), s.clave(), s.telefono());
         return ResponseEntity.status(HttpStatus.CREATED).body(perfil(cuenta));
+    }
+
+    @PostMapping("/verificacion")
+    @Operation(summary = "Confirmar el correo con el codigo de 6 digitos")
+    public Perfil verificar(@Valid @RequestBody Codigo s, Authentication auth) {
+        VerificacionServicio.Resultado r = verificacion.verificar(auth.getName(), s.codigo());
+        return switch (r) {
+            case VERIFICADA, YA_VERIFICADA -> perfil(cuentas.obtenerPorCorreo(auth.getName()));
+            case INCORRECTO -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "El código no es correcto. Te quedan " + verificacion.intentosRestantes(auth.getName()) + " intentos.");
+            case VENCIDO -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "El código venció. Pide uno nuevo.");
+            case SIN_CODIGO -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Primero pide un código.");
+            case DEMASIADOS_INTENTOS -> throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                    "Demasiados intentos. Pide un código nuevo.");
+        };
+    }
+
+    @PostMapping("/verificacion/reenviar")
+    @Operation(summary = "Enviar otro codigo de verificacion (esperar 60 s entre envios)")
+    public ResponseEntity<Void> reenviar(Authentication auth) {
+        verificacion.reenviar(auth.getName());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/me")

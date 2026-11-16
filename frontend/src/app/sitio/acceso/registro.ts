@@ -41,7 +41,16 @@ import { coincideCon, maximo72Bytes } from '../../compartido/validadores';
           <div class="campo">
             <label for="email">Correo electrónico</label>
             <input id="email" class="control" type="email" formControlName="email" autocomplete="email" placeholder="tu@correo.com">
+            <span class="ayuda"><i class="fa-solid fa-envelope-circle-check"></i> Usa un correo real: te enviaremos un código para activar tu cuenta.</span>
             <app-error-campo [control]="form.controls.email" nombre="El correo" />
+          </div>
+          <div class="campo">
+            <label for="telefono">Celular <span class="texto-tenue">(opcional)</span></label>
+            <div class="con-icono"><i class="fa-solid fa-mobile-screen"></i>
+              <input id="telefono" class="control" type="tel" formControlName="telefono" autocomplete="tel" placeholder="987 654 321">
+            </div>
+            <span class="ayuda">Para contactarte si hay un cambio en tu reserva.</span>
+            <app-error-campo [control]="form.controls.telefono" nombre="El celular" />
           </div>
           <div class="campo">
             <label for="clave">Contraseña</label>
@@ -73,6 +82,7 @@ export class RegistroPagina {
   protected readonly form = inject(FormBuilder).nonNullable.group({
     nombre: ['', [Validators.required, Validators.maxLength(80)]],
     email: ['', [Validators.required, Validators.email, Validators.maxLength(160)]],
+    telefono: ['', Validators.pattern(/^(\+?51)?[\s-]?9\d{2}[\s-]?\d{3}[\s-]?\d{3}$/)],
     clave: ['', [Validators.required, Validators.minLength(12), maximo72Bytes]],
     confirmar: ['', [Validators.required, coincideCon('clave')]],
   });
@@ -105,10 +115,10 @@ export class RegistroPagina {
     this.enviando.set(true);
     this.error.set(null);
     try {
-      const { nombre, email, clave } = this.form.getRawValue();
-      await this.auth.registrar(nombre.trim(), email.trim(), clave);
-      const destino = this.volver();
-      await this.router.navigateByUrl(destino?.startsWith('/') && !destino.startsWith('//') ? destino : '/mi-cuenta');
+      const { nombre, email, clave, telefono } = this.form.getRawValue();
+      await this.auth.registrar(nombre.trim(), email.trim(), clave, telefono.trim() || null);
+      // Antes de reservar hay que confirmar el correo con el código que acabamos de enviar.
+      await this.router.navigate(['/verificar'], { queryParams: { volver: this.volver() || '/reservar' } });
     } catch (e) {
       this.error.set(mensajeDeError(e));
     } finally {

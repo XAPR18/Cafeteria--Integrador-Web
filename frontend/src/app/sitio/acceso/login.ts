@@ -86,6 +86,10 @@ export class LoginPagina {
       const { email, clave } = this.form.getRawValue();
       const perfil = await this.auth.login(email.trim(), clave);
       const destino = this.volver();
+      if (perfil.rol === 'CLIENTE' && !perfil.verificado) {
+        await this.router.navigate(['/verificar'], { queryParams: { volver: destino || '/reservar' } });
+        return;
+      }
       const puedeVolver = destino?.startsWith('/') && !destino.startsWith('//')
         && (perfil.rol !== 'CLIENTE' || !destino.startsWith('/admin') && !destino.startsWith('/empleado'));
       await this.router.navigateByUrl(puedeVolver ? destino! : this.auth.inicioSegunRol(perfil.rol));

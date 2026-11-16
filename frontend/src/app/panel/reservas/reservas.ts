@@ -57,7 +57,7 @@ const ACCIONES: Record<EstadoReserva, Accion[]> = {
     <div class="tarjeta">
       <div class="herramientas">
         <label class="con-icono buscar"><i class="fa-solid fa-magnifying-glass"></i>
-          <input class="control" type="search" placeholder="Buscar cliente, correo o mesa…" [ngModel]="texto()" (ngModelChange)="texto.set($event)" aria-label="Buscar">
+          <input class="control" type="search" placeholder="Buscar cliente, correo, mesa o código CC14-…" [ngModel]="texto()" (ngModelChange)="texto.set($event)" aria-label="Buscar">
         </label>
         <select class="control" [ngModel]="filtroEstado()" (ngModelChange)="filtroEstado.set($event)" aria-label="Filtrar por estado">
           <option value="ACTIVAS">Pendientes y confirmadas</option>
@@ -82,7 +82,7 @@ const ACCIONES: Record<EstadoReserva, Accion[]> = {
                 <tr>
                   @if (rango() === 'semana') { <td>{{ fechaCorta(r.fecha) }}</td> }
                   <td class="num"><strong>{{ r.horaInicio }}</strong> <span class="texto-tenue">– {{ r.horaFin }}</span></td>
-                  <td class="nombre-celda"><strong>{{ r.clienteNombre }}</strong><small>{{ r.clienteEmail }}</small>
+                  <td class="nombre-celda"><strong>{{ r.clienteNombre }}</strong><small>{{ r.clienteEmail }}</small><small class="codigo">{{ r.codigo }}</small>
                     @if (r.nota) { <small class="nota"><i class="fa-regular fa-note-sticky"></i> {{ r.nota }}</small> }</td>
                   <td class="num">{{ r.personas }}</td>
                   <td>N.º {{ r.mesaNumero }} <span class="texto-tenue">· {{ ZONAS[r.mesaZona] }}</span></td>
@@ -108,6 +108,7 @@ const ACCIONES: Record<EstadoReserva, Accion[]> = {
     .acciones { display: table-cell; }
     .acciones .btn { margin-left: .3rem; }
     .nota { display: block; color: var(--aviso) !important; margin-top: .15rem; }
+    .codigo { display: block; font-family: "Courier New", monospace; font-weight: 700; letter-spacing: .08em; color: var(--oro-2) !important; }
   `,
 })
 export class ReservasPagina {
@@ -140,7 +141,7 @@ export class ReservasPagina {
     const f = this.filtroEstado();
     return this.reservas().filter(r =>
       (f === 'TODAS' || (f === 'ACTIVAS' ? r.estado === 'PENDIENTE' || r.estado === 'CONFIRMADA' : r.estado === f))
-      && (!q || `${r.clienteNombre} ${r.clienteEmail} mesa ${r.mesaNumero}`.toLowerCase().includes(q)));
+      && (!q || `${r.clienteNombre} ${r.clienteEmail} mesa ${r.mesaNumero} ${r.codigo}`.toLowerCase().includes(q)));
   });
 
   constructor() { this.cargar(); }

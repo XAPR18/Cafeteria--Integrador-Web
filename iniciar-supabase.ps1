@@ -7,7 +7,7 @@ function LeerSecreto([string]$Mensaje) {
     finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($puntero) }
 }
 
-$variables = @('SPRING_PROFILES_ACTIVE', 'DB_URL', 'DB_USER', 'DB_PASSWORD', 'JWT_SECRET', 'ADMIN_EMAIL', 'ADMIN_PASSWORD', 'JAVA_HOME')
+$variables = @('SPRING_PROFILES_ACTIVE', 'DB_URL', 'DB_USER', 'DB_PASSWORD', 'JWT_SECRET', 'ADMIN_EMAIL', 'ADMIN_PASSWORD', 'JAVA_HOME', 'BREVO_API_KEY', 'APP_URL')
 $anteriores = @{}
 foreach ($nombre in $variables) {
     $anteriores[$nombre] = [Environment]::GetEnvironmentVariable($nombre, 'Process')
@@ -32,6 +32,12 @@ try {
         $env:JWT_SECRET = [Convert]::ToBase64String($bytes)
         Write-Host 'Se genero una clave JWT temporal: las sesiones anteriores se invalidan al reiniciar con otra clave.'
     }
+
+    # Correos (verificación y reservas). Sin clave, los correos se muestran en esta consola en lugar de enviarse.
+    if ([string]::IsNullOrWhiteSpace($env:BREVO_API_KEY)) {
+        $env:BREVO_API_KEY = LeerSecreto 'Clave API de Brevo para enviar correos (Enter para omitir y verlos en la consola)'
+    }
+    if ([string]::IsNullOrWhiteSpace($env:APP_URL)) { $env:APP_URL = 'http://localhost:8080' }
 
     # ADMIN_EMAIL y ADMIN_PASSWORD solo hacen falta si la base no tiene ninguna cuenta.
     # La base de Supabase ya tiene administrador, asi que no se piden. Para una base vacia,

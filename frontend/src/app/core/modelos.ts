@@ -8,6 +8,9 @@ export interface Perfil {
   email: string;
   rol: Rol;
   activa: boolean;
+  /** Los clientes registrados por la web deben confirmar su correo antes de reservar. */
+  verificado: boolean;
+  telefono: string | null;
 }
 
 export interface Seccion {
@@ -80,6 +83,8 @@ export interface Reserva {
   clienteNombre: string;
   clienteEmail: string;
   creadoEn: string;
+  /** Código que el cliente muestra al llegar, p. ej. CC14-7KQ2MX (también va en el QR). */
+  codigo: string;
 }
 
 export interface ReservaSolicitud {

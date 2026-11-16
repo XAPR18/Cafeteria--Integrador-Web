@@ -49,6 +49,21 @@ public class CatalogoControlador {
         return reservas.agenda(fecha, personas, zona);
     }
 
+    /**
+     * Imagen QR del código de una reserva (la usan el correo y "Mi cuenta").
+     * Solo codifica el texto del código que ya conoce quien lo pide: no consulta la base ni revela datos.
+     */
+    @GetMapping(value = "/reservas/{codigo}/qr.png", produces = org.springframework.http.MediaType.IMAGE_PNG_VALUE)
+    @Operation(summary = "QR del codigo de una reserva")
+    public org.springframework.http.ResponseEntity<byte[]> qr(@org.springframework.web.bind.annotation.PathVariable String codigo) {
+        if (!codigo.matches("CC14-[A-Z0-9]{1,10}")) {
+            return org.springframework.http.ResponseEntity.notFound().build();
+        }
+        return org.springframework.http.ResponseEntity.ok()
+                .cacheControl(org.springframework.http.CacheControl.maxAge(java.time.Duration.ofDays(30)).cachePublic())
+                .body(CodigoQr.png(codigo, 360));
+    }
+
     @GetMapping("/mesas-libres")
     @Operation(summary = "Mesas libres para un turno concreto")
     public List<MesaLibre> mesasLibres(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,

@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cuentas")
@@ -32,6 +33,26 @@ public class Cuenta {
     @Column(nullable = false)
     private boolean activa = true;
 
+    /** Los clientes que se registran solos deben confirmar su correo antes de reservar. */
+    @Column(name = "email_verificado", nullable = false)
+    private boolean emailVerificado = true;
+
+    @Column(length = 20)
+    private String telefono;
+
+    /** SHA-256 del código enviado por correo; nunca se guarda el código en claro. */
+    @Column(name = "verificacion_hash", length = 64)
+    private String verificacionHash;
+
+    @Column(name = "verificacion_expira")
+    private LocalDateTime verificacionExpira;
+
+    @Column(name = "verificacion_enviada")
+    private LocalDateTime verificacionEnviada;
+
+    @Column(name = "verificacion_intentos", nullable = false)
+    private int verificacionIntentos;
+
     protected Cuenta() {
     }
 
@@ -49,4 +70,30 @@ public class Cuenta {
     public Rol getRol() { return rol; }
     public boolean isActiva() { return activa; }
     public void setActiva(boolean activa) { this.activa = activa; }
+    public boolean isEmailVerificado() { return emailVerificado; }
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
+    public String getVerificacionHash() { return verificacionHash; }
+    public LocalDateTime getVerificacionExpira() { return verificacionExpira; }
+    public LocalDateTime getVerificacionEnviada() { return verificacionEnviada; }
+    public int getVerificacionIntentos() { return verificacionIntentos; }
+
+    /** Deja la cuenta pendiente de verificar (registro público de clientes). */
+    public void requerirVerificacion() { this.emailVerificado = false; }
+
+    public void nuevoCodigo(String hash, LocalDateTime expira, LocalDateTime enviada) {
+        this.verificacionHash = hash;
+        this.verificacionExpira = expira;
+        this.verificacionEnviada = enviada;
+        this.verificacionIntentos = 0;
+    }
+
+    public void intentoFallido() { this.verificacionIntentos++; }
+
+    public void marcarVerificada() {
+        this.emailVerificado = true;
+        this.verificacionHash = null;
+        this.verificacionExpira = null;
+        this.verificacionIntentos = 0;
+    }
 }

@@ -95,7 +95,7 @@ public class ConfiguracionSeguridad {
         http.authorizeHttpRequests(a -> a
                 .requestMatchers(RUTAS_AUTH_PUBLICAS.toArray(String[]::new)).permitAll()
                 .requestMatchers("/api/auth/sesion").permitAll()
-                .requestMatchers("/api/auth/me").authenticated()
+                .requestMatchers("/api/auth/me", "/api/auth/verificacion", "/api/auth/verificacion/reenviar").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/catalogo/**").permitAll()
                 .requestMatchers("/api/cuentas/**").hasRole(Rol.ADMIN.name())
                 // Reservas: el cliente gestiona las suyas; el personal ve y cambia el estado de todas.

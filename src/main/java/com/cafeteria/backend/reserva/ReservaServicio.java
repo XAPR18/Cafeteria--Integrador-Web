@@ -1,6 +1,8 @@
 package com.cafeteria.backend.reserva;
 
 import com.cafeteria.backend.common.RecursoNoEncontradoException;
+import com.cafeteria.backend.correo.PlantillasCorreo;
+import com.cafeteria.backend.correo.PlantillasCorreo.TipoReserva;
 import com.cafeteria.backend.common.ReglaNegocioException;
 import com.cafeteria.backend.mesa.Mesa;
 import com.cafeteria.backend.mesa.MesaJpaRepository;
@@ -36,9 +38,17 @@ public class ReservaServicio {
     private final CuentaRepositorio cuentas;
     private final HorarioAtencion horario;
     private final Clock reloj;
+    private final PlantillasCorreo plantillas;
+    private final org.springframework.context.ApplicationEventPublisher eventos;
+    private final java.security.SecureRandom azar = new java.security.SecureRandom();
+    /** Sin letras ni números confundibles (0/O, 1/I/L). */
+    private static final String ALFABETO_CODIGO = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 
     public ReservaServicio(ReservaRepositorio reservas, MesaJpaRepository mesas, CuentaRepositorio cuentas,
-                           HorarioAtencion horario, Clock reloj) {
+                           HorarioAtencion horario, Clock reloj, PlantillasCorreo plantillas,
+                           org.springframework.context.ApplicationEventPublisher eventos) {
+        this.plantillas = plantillas;
+        this.eventos = eventos;
         this.reservas = reservas;
         this.mesas = mesas;
         this.cuentas = cuentas;
@@ -83,6 +93,10 @@ public class ReservaServicio {
         if (cliente.getRol() != Rol.CLIENTE) {
             throw new ReglaNegocioException("Las reservas se hacen con una cuenta de cliente");
         }
+        if (!cliente.isEmailVerificado()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Verifica tu correo para poder reservar. Revisa tu bandeja de entrada o pide un código nuevo.");
+        }
         validarTurno(s.fecha(), s.hora());
         LocalTime fin = s.hora().plus(HorarioAtencion.DURACION);
 
@@ -101,8 +115,10 @@ public class ReservaServicio {
                 : reservarMejorMesa(s.fecha(), s.hora(), fin, s.personas(), s.zona());
 
         String nota = s.nota() == null || s.nota().isBlank() ? null : s.nota().trim();
-        return ReservaRespuesta.desde(reservas.saveAndFlush(new Reserva(cliente, mesa, s.fecha(), s.hora(), fin, s.personas(), nota,
-                LocalDateTime.now(reloj))));
+        ReservaRespuesta creada = ReservaRespuesta.desde(reservas.saveAndFlush(new Reserva(cliente, mesa, s.fecha(), s.hora(), fin,
+                s.personas(), nota, LocalDateTime.now(reloj), nuevoCodigo())));
+        eventos.publishEvent(plantillas.reserva(creada, TipoReserva.CREADA));
+        return creada;
     }
 
     @Transactional(readOnly = true)
@@ -147,7 +163,16 @@ public class ReservaServicio {
             throw new ReglaNegocioException("No se puede pasar de " + r.getEstado() + " a " + nuevo);
         }
         r.setEstado(nuevo);
-        return ReservaRespuesta.desde(r);
+        ReservaRespuesta actualizada = ReservaRespuesta.desde(r);
+        if (nuevo == EstadoReserva.CONFIRMADA) eventos.publishEvent(plantillas.reserva(actualizada, TipoReserva.CONFIRMADA));
+        if (nuevo == EstadoReserva.CANCELADA) eventos.publishEvent(plantillas.reserva(actualizada, TipoReserva.CANCELADA));
+        return actualizada;
+    }
+
+    private String nuevoCodigo() {
+        StringBuilder sb = new StringBuilder("CC14-");
+        for (int i = 0; i < 6; i++) sb.append(ALFABETO_CODIGO.charAt(azar.nextInt(ALFABETO_CODIGO.length())));
+        return sb.toString();
     }
 
     // ---------------------------------------------------------------- reglas internas

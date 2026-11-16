@@ -29,6 +29,7 @@ class ReservaIntegracionTest {
     @Autowired MockMvc mvc;
     @Autowired ObjectMapper json;
     @Autowired Clock reloj;
+    @Autowired com.cafeteria.backend.correo.CorreoServicio correo;
 
     private String fecha(int diasDespues) {
         return LocalDate.now(reloj).plusDays(diasDespues).toString();
@@ -39,7 +40,12 @@ class ReservaIntegracionTest {
         mvc.perform(post("/api/auth/registro").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(Map.of("nombre", "Cliente reservas", "email", email, "clave", "Cliente.Reserva!2026"))))
                 .andExpect(status().isCreated());
-        return login(email, "Cliente.Reserva!2026");
+        Cookie sesion = login(email, "Cliente.Reserva!2026");
+        // Las cuentas nuevas deben verificar su correo antes de reservar.
+        String codigo = com.cafeteria.backend.correo.BuzonPruebas.codigoVerificacion(correo, email);
+        mvc.perform(post("/api/auth/verificacion").cookie(sesion).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"codigo\":\"" + codigo + "\"}")).andExpect(status().isOk());
+        return sesion;
     }
 
     private Cookie login(String email, String clave) throws Exception {

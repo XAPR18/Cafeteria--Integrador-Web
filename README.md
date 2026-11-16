@@ -9,7 +9,6 @@ Sistema web de una cafetería de barrio: carta en línea, reservas de mesa, pane
 | Persistencia | JPA/Hibernate · Flyway · PostgreSQL en Supabase (H2 para desarrollo y pruebas) |
 | Despliegue | Docker en Render (una sola imagen sirve Angular y la API) |
 
-Publicación: [guía de Render y Supabase](docs/PUBLICAR-RENDER.md).
 
 ## Funcionalidades
 

@@ -40,6 +40,7 @@ export const routes: Routes = [
       { path: 'carta', title: 'Carta — Café Catorce', loadComponent: () => import('./sitio/carta/carta').then(m => m.CartaPagina) },
       { path: 'reservar', title: 'Reservar mesa — Café Catorce', loadComponent: () => import('./sitio/reservar/reservar').then(m => m.ReservarPagina) },
       { path: 'mi-cuenta', title: 'Mi cuenta — Café Catorce', canActivate: [requiereRol('CLIENTE')], loadComponent: () => import('./sitio/mi-cuenta/mi-cuenta').then(m => m.MiCuentaPagina) },
+      { path: 'verificar', title: 'Verifica tu correo — Café Catorce', canActivate: [requiereRol('CLIENTE')], loadComponent: () => import('./sitio/acceso/verificar').then(m => m.VerificarPagina) },
       { path: 'login', title: 'Ingresar — Café Catorce', canActivate: [soloVisitantes], loadComponent: () => import('./sitio/acceso/login').then(m => m.LoginPagina) },
       { path: 'registro', title: 'Crear cuenta — Café Catorce', canActivate: [soloVisitantes], loadComponent: () => import('./sitio/acceso/registro').then(m => m.RegistroPagina) },
       { path: '**', title: 'Página no encontrada — Café Catorce', loadComponent: () => import('./sitio/no-encontrada').then(m => m.NoEncontradaPagina) },
